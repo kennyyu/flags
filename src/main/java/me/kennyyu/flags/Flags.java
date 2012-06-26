@@ -82,6 +82,7 @@ public final class Flags {
                 Class<Class<?>> flagClass = (Class<Class<?>>) field.getType();
                 TypeVariable<Class<Class<?>>>[] flagValueType = flagClass.getTypeParameters();
                 try {
+                    // TODO(kennyyu) figure out how to set the value of the flag
                     field.set(null, parseString(flagValueString, flagValueType[0].getGenericDeclaration()));
                 } catch (Exception e) {
                     e.printStackTrace();
