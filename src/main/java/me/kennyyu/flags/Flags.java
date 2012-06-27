@@ -15,6 +15,14 @@ import org.reflections.scanners.TypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+/**
+ * TODO(kennyyu) Add different exceptions (add exception for Flag<?>)
+ * TODO(kennyyu) add tests
+ * TODO(kennyyu) add Flag<List<Integer>> support
+ * TODO(kennyyu) add javadoc
+ *
+ * @author kennyyu
+ */
 public final class Flags {
 
   @FlagDesc(help = "display this help menu")
@@ -41,7 +49,7 @@ public final class Flags {
     Map<String, String> helpMap = makeHelpMap(fields);
     Map<String, String> altNameToFullNameMap = makeAltNameToFullNameMap(fields);
     Set<String> allFieldsNameSet = makeAllFieldsNameSet(fields);
-    Map<String, String> providedFieldValuesMap = 
+    Map<String, String> providedFieldValuesMap =
         makeProvidedFieldValuesMap(args, allFieldsNameSet, altNameToFullNameMap);
     setFieldValues(fields, providedFieldValuesMap);
 
@@ -72,7 +80,7 @@ public final class Flags {
     for (Field field : fields) {
       FlagDesc flagDescription = field.getAnnotation(FlagDesc.class);
       String combinedFlagNames = flagDescription.altName().equals("")
-          ? field.getName() 
+          ? field.getName()
           : field.getName() + ", " + flagDescription.altName();
       helpMap.put(combinedFlagNames, flagDescription.help() + " [from "
           + field.getDeclaringClass().getName() + "]");
