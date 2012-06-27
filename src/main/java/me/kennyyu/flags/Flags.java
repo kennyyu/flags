@@ -22,6 +22,7 @@ import org.reflections.util.ConfigurationBuilder;
  * TODO(kennyyu) add javadoc
  * TODO(kennyyu) quotes --foo="jack doe"
  * TODO(kennyyu) -short forms
+ * TODO(kennyyu) check if separate flags have duplicate names
  *
  * @author kennyyu
  */
