@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface FlagDesc {
-    String help();
-    String name();
+  String help();
+  String altName() default "";
 }
