@@ -20,6 +20,8 @@ import org.reflections.util.ConfigurationBuilder;
  * TODO(kennyyu) add tests
  * TODO(kennyyu) add Flag<List<Integer>> support
  * TODO(kennyyu) add javadoc
+ * TODO(kennyyu) quotes --foo="jack doe"
+ * TODO(kennyyu) -short forms
  *
  * @author kennyyu
  */
