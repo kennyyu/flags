@@ -24,6 +24,18 @@ public final class Flags {
     return new FlagImpl<T>(flagValue);
   }
 
+  private static class FlagImpl<T> implements Flag<T> {
+    private final T value;
+
+    public FlagImpl(T value) {
+      this.value = value;
+    }
+
+    public T get() {
+      return value;
+    }
+  }
+
   public static void parse(String[] args) {
     Set<Field> fields = getAnnotatedFields();
     Map<String, String> helpMap = makeHelpMap(fields);
