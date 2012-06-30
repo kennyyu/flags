@@ -24,30 +24,43 @@ import com.google.common.collect.Sets;
  * TODO(kennyyu) add tests
  * TODO(kennyyu) add javadoc
  * TODO(kennyyu) add check so that only Flag objects are annotated
- *
- * @author kennyyu
  */
 public final class Flags {
 
   @FlagDesc(help = "display this help menu", altName="h")
   private static Flag<Boolean> help = Flags.valueOf(false);
 
+  /**
+   * Create a {@link Flag} with the given value.
+   */
   public static <T> Flag<T> valueOf(T flagValue) {
     return new FlagImpl<T>(flagValue);
   }
 
+  /**
+   * Create a {@link Flag} holding a {@link List} of values.
+   */
   public static <T> Flag<List<T>> valueOf(List<T> flagValue) {
     return new FlagImpl<List<T>>(flagValue);
   }
 
+  /**
+   * Create a {@link Flag} holding a {@link Set} of values.
+   */
   public static <T> Flag<Set<T>> valueOf(Set<T> flagValue) {
     return new FlagImpl<Set<T>>(flagValue);
   }
 
+  /**
+   * Create a {@link Flag} holding a {@link Map} of values.
+   */
   public static <K, V> Flag<Map<K, V>> valueOf(Map<K, V> flagValue) {
     return new FlagImpl<Map<K, V>>(flagValue);
   }
 
+  /**
+   * Private implementation of {@link Flag}.
+   */
   private static class FlagImpl<T> implements Flag<T> {
     private final T value;
 
@@ -91,9 +104,10 @@ public final class Flags {
     Reflections reflections = new Reflections(
         new ConfigurationBuilder()
           .setUrls(ClasspathHelper.forJavaClassPath())
-          .setScanners(new TypeAnnotationsScanner(),
-                       new TypesScanner(),
-                       new FieldAnnotationsScanner()));
+          .setScanners(
+              new TypeAnnotationsScanner(),
+              new TypesScanner(),
+              new FieldAnnotationsScanner()));
     Set<Field> fields = reflections.getFieldsAnnotatedWith(FlagDesc.class);
 
     // set accessible to true so that we can access private fields
@@ -104,7 +118,7 @@ public final class Flags {
   }
 
   /**
-   * Returns a map (flag name) -> (flag information).
+   * Returns a {@link Map} (flag name) -> (flag information).
    */
   private static Map<String, String> makeHelpMap(Set<Field> fields) {
     Map<String, String> helpMap = Maps.newTreeMap();
@@ -120,7 +134,7 @@ public final class Flags {
   }
 
   /**
-   * Returns a map from (flag name or alternate name) -> (flag name).
+   * Returns a {@link Map} from (flag name or alternate name) -> (flag name).
    */
   private static Map<String, String> makeAltNameToFullNameMap(
       Set<Field> fields) {
@@ -291,8 +305,8 @@ public final class Flags {
     } else {
       // assign flag to value read from command line
       try {
-        field.set(null,
-            Flags.valueOf(valueOfString(flagValueString,(Class<?>) parameter)));
+        field.set(null, Flags.valueOf(valueOfString(flagValueString,
+            (Class<?>) parameter)));
       } catch (Exception e) {
         e.printStackTrace();
         System.exit(-1);
@@ -301,7 +315,7 @@ public final class Flags {
   }
 
   /**
-   * Updates field to be a {@List} containing the values in flagValueString
+   * Updates field to be a {@link List} containing the values in flagValueString
    * @param field the field to update
    * @param flagValueString comma separated list of values in this list
    * @param parameterType the type nested in this list
@@ -324,7 +338,7 @@ public final class Flags {
   }
 
   /**
-   * Updates field to be a {@Set} containing the values in flagValueString
+   * Updates field to be a {@link Set} containing the values in flagValueString
    * @param field the field to update
    * @param flagValueString comma separated list of values in this list
    * @param parameterType the type nested in this list
@@ -347,7 +361,7 @@ public final class Flags {
   }
 
   /**
-   * Updates field to be a {@Map} containing the values in flagValueString
+   * Updates field to be a {@link Map} containing the values in flagValueString
    * @param field the field to update
    * @param flagValueString string formatted in the form
    *    "key1:value1 key2:value2 ..."
@@ -384,8 +398,7 @@ public final class Flags {
    */
   private static void printHelp(Map<String, String> helpMap) {
     for (Entry<String, String> entry : helpMap.entrySet()) {
-      System.out.println(entry.getKey());
-      System.out.println("    " + entry.getValue());
+      System.out.println(entry.getKey() + "\n    " + entry.getValue());
     }
     System.exit(0);
   }
