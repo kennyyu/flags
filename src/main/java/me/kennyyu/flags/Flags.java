@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
  * TODO(kennyyu) Add different exceptions (add exception for Flag<?>)
  * TODO(kennyyu) add tests
  * TODO(kennyyu) add javadoc
+ * TODO(kennyyu) add check so that only Flag objects are annotated
  *
  * @author kennyyu
  */
@@ -173,7 +174,7 @@ public final class Flags {
       Map<String, String> altNameToFullNameMap) {
     Map<String, String> providedFieldValuesMap = Maps.newHashMap();
     for (String arg : args) {
-      String flagName = arg;
+      String flagName = "";
       String value = "";
 
       if (!arg.startsWith("-")) {
@@ -181,6 +182,7 @@ public final class Flags {
       } else if (arg.startsWith("--")) {
         // parse out --flag=value
         int equalsIndex = arg.indexOf("=");
+        flagName = arg.substring(2);
         if ((equalsIndex) >= 2) {
           flagName = arg.substring(2, equalsIndex);
           value = arg.substring(equalsIndex + 1);
@@ -188,6 +190,7 @@ public final class Flags {
       } else if (arg.startsWith("-")) {
         // parse out -f=value
         int equalsIndex = arg.indexOf("=");
+        flagName = arg.substring(1);
         if ((equalsIndex) >= 1) {
           flagName = arg.substring(1, equalsIndex);
           value = arg.substring(equalsIndex + 1);
