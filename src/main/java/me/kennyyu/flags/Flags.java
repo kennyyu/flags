@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
  * TODO(kennyyu) Add different exceptions (add exception for Flag<?>)
  * TODO(kennyyu) add tests
  * TODO(kennyyu) add javadoc
- * TODO(kennyyu) check if separate flags have duplicate names
  *
  * @author kennyyu
  */
