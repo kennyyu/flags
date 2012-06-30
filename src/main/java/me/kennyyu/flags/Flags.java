@@ -23,8 +23,6 @@ import com.google.common.collect.Sets;
  * TODO(kennyyu) Add different exceptions (add exception for Flag<?>)
  * TODO(kennyyu) add tests
  * TODO(kennyyu) add javadoc
- * TODO(kennyyu) quotes --foo="jack doe"
- * TODO(kennyyu) -short forms
  * TODO(kennyyu) check if separate flags have duplicate names
  *
  * @author kennyyu
@@ -145,7 +143,15 @@ public final class Flags {
     for (Field field : fields) {
       FlagDesc flagDescription = field.getAnnotation(FlagDesc.class);
       if (!flagDescription.altName().equals("")) {
+        if (allFieldsNameSet.contains(flagDescription.altName())) {
+          throw new IllegalArgumentException(
+              "flag name duplicated: " + flagDescription.altName());
+        }
         allFieldsNameSet.add(flagDescription.altName());
+      }
+      if (allFieldsNameSet.contains(field.getName())) {
+        throw new IllegalArgumentException(
+            "flag name duplicated: " + field.getName());
       }
       allFieldsNameSet.add(field.getName());
     }
@@ -339,7 +345,7 @@ public final class Flags {
   }
 
   /**
-   * Upadtes field to be a {@Map} containing the values in flagValueString
+   * Updates field to be a {@Map} containing the values in flagValueString
    * @param field the field to update
    * @param flagValueString string formatted in the form
    *    "key1:value1 key2:value2 ..."
