@@ -168,17 +168,25 @@ public final class Flags {
       Map<String, String> altNameToFullNameMap) {
     Map<String, String> providedFieldValuesMap = Maps.newHashMap();
     for (String arg : args) {
-      if (!arg.startsWith("--")) {
-        continue;
-      }
-
-      // parse out --flag=value
-      String flagName = arg.substring(2);
+      String flagName = arg;
       String value = "";
-      int equalsIndex = arg.indexOf("=");
-      if ((equalsIndex) >= 2) {
-        flagName = arg.substring(2, equalsIndex);
-        value = arg.substring(equalsIndex + 1);
+
+      if (!arg.startsWith("-")) {
+        continue; // skip this string
+      } else if (arg.startsWith("--")) {
+        // parse out --flag=value
+        int equalsIndex = arg.indexOf("=");
+        if ((equalsIndex) >= 2) {
+          flagName = arg.substring(2, equalsIndex);
+          value = arg.substring(equalsIndex + 1);
+        }
+      } else if (arg.startsWith("-")) {
+        // parse out -f=value
+        int equalsIndex = arg.indexOf("=");
+        if ((equalsIndex) >= 1) {
+          flagName = arg.substring(1, equalsIndex);
+          value = arg.substring(equalsIndex + 1);
+        }
       }
 
       // throw exception if the flag is not recognized
