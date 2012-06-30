@@ -14,6 +14,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface FlagDesc {
+
+  /**
+   * Help information on how to use this flag.
+   */
   String help();
+
+  /**
+   * Alternate name for flag. The default name will be the name of the variable
+   * and command line values must be provided in the format:
+   *     "--defaultFlagName=value"
+   * For alternate names, only a single dash is required:
+   *     "-altFlagName=value".
+   */
   String altName() default "";
 }

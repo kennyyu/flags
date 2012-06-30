@@ -75,11 +75,14 @@ public final class Flags {
   }
 
   /**
-   * Parses the command line arguments and updates the flags as necessary. If
-   * "--help" is passed in at the command line, then the help menu will be
-   * printed and the program will terminate.
+   * Parses the command line arguments and updates as necessary all {@link Flag}
+   * objects annotated with {@link FlagDesc}.
    *
-   * @param args Command line arguments
+   * If "--help" of "-h" is passed in at the command line, then the help menu
+   * will be printed and the program will terminate.
+   *
+   * @param args command line arguments in the form
+   *     "--defaultFlagName=value --booleanFlag -c=foo ..."
    */
   public static void parse(String[] args) {
     Set<Field> fields = getAnnotatedFields();
