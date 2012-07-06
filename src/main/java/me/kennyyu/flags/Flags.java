@@ -293,13 +293,14 @@ public final class Flags {
    * @param allFieldsNameSet set of all possible flags as strings
    * @param altNameToFullNameMap map from all possible names of a flag to the
    *    flag's canonical name
-   * @throws UnknownFlagNameException if a flag passed at the command line is not
-   *    recognized
+   * @throws UnknownFlagNameException if a flag passed at the command line is
+   *    not recognized
    */
   private static Map<String, String> makeProvidedFieldValuesMap(
       String[] args,
       Set<String> allFieldsNameSet,
-      Map<String, String> altNameToFullNameMap) throws UnknownFlagNameException {
+      Map<String, String> altNameToFullNameMap)
+      throws UnknownFlagNameException {
     Map<String, String> providedFieldValuesMap = Maps.newHashMap();
     for (String arg : args) {
       String flagName = "";
