@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
  * type of the field will be the type of the flag. Then annotate the field
  * with {@link FlagInfo} and provide the necessary fields. Example:
  *
- *    @FlagDesc(help = "maximum number of threads to use", altName = "n")
+ *    @FlagInfo(help = "maximum number of threads to use", altName = "n")
  *    private static Flag<Integer> maxNumThreads = Flag<Integer>.valueOf(4);
  *
  * This example declares a new flag indicating the maximum number of threads
@@ -55,7 +55,7 @@ import com.google.common.collect.Sets;
  *      TERMINATED
  *    }
  *
- *    @FlagSpec(help = "enum example")
+ *    @FlagInfo(help = "enum example")
  *    private static Flag<Status> status = Flags.valueOf(Status.RUNNING);
  *
  *    java MyApp --status=TERMINATED
@@ -63,21 +63,21 @@ import com.google.common.collect.Sets;
  * Flags also support {@link Collection} types.
  *
  * To pass in a {@link List}:
- *    @FlagDesc(help = "list example")
+ *    @FlagInfo(help = "list example")
  *    private static Flag<List<Integer>> list =
  *        Flags.valueOf(new ArrayList<Integer>());
  *
  *    java MyApp --list=3,4,5,6,6,7
  *
  * To pass in a {@link Set}:
- *    @FlagDesc(help = "set example")
+ *    @FlagInfo(help = "set example")
  *    private static Flag<Set<String>> set =
  *        Flags.valueOf(new HashSet<String>());
  *
  *    java MyApp --set=foo,cheese,bar
  *
  * To pass in a {@link Map}:
- *    @FlagDesc(help = "map example")
+ *    @FlagInfo(help = "map example")
  *    private static Flag<Map<String, Integer>> map =
  *        Flags.valueOf(new HashMap<String, Integer>());
  *

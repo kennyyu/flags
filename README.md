@@ -10,7 +10,7 @@ The parameter type of the field will be the type of the flag. Then annotate
 the field with `me.kennyyu.flags.FlagInfo` and provide the necessary fields.
 Example:
 
-    @FlagDesc(help = "maximum number of threads to use", altName = "n")
+    @FlagInfo(help = "maximum number of threads to use", altName = "n")
     private static Flag<Integer> maxNumThreads = Flag<Integer>.valueOf(4);
 
 This example declares a new flag indicating the maximum number of threads
@@ -48,7 +48,7 @@ Flags also support `Enum` types. Example:
       TERMINATED
     }
 
-    @FlagSpec(help = "enum example")
+    @FlagInfo(help = "enum example")
     private static Flag<Status> status = Flags.valueOf(Status.RUNNING);
 
 To run it:
@@ -59,7 +59,7 @@ Flags also support `Collection` types.
 
 To pass in a `List`:
 
-    @FlagDesc(help = "list example")
+    @FlagInfo(help = "list example")
     private static Flag<List<Integer>> list =
         Flags.valueOf(new ArrayList<Integer>());
 
@@ -69,7 +69,7 @@ To run it:
 
 To pass in a `Set`:
 
-    @FlagDesc(help = "set example")
+    @FlagInfo(help = "set example")
     private static Flag<Set<String>> set =
         Flags.valueOf(new HashSet<String>());
 
@@ -79,7 +79,7 @@ To run it:
 
 To pass in a `Map`:
 
-    @FlagDesc(help = "map example")
+    @FlagInfo(help = "map example")
     private static Flag<Map<String, Integer>> map =
         Flags.valueOf(new HashMap<String, Integer>());
 
