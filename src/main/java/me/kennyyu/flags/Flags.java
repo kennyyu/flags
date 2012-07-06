@@ -20,7 +20,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * TODO(kennyyu) add tests
  * TODO(kennyyu) add javadoc about exceptions
  */
 public final class Flags {
@@ -255,7 +254,10 @@ public final class Flags {
    * @param value the string to be parsed
    * @param parsingClass the class to convert the string into
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private static <T> T valueOfString(String value, Class<T> parsingClass) {
+    if (parsingClass.isEnum())
+      return (T) Enum.valueOf((Class) parsingClass, value);
     if (parsingClass.equals(Byte.class))
       return parsingClass.cast(new Byte((byte) Integer.parseInt(value, 16)));
     if (parsingClass.equals(Short.class))
@@ -301,7 +303,6 @@ public final class Flags {
   /**
    * Updates field to be the corresponding value of flagValueString.
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   private static void setField(Field field, String flagValueString) {
     // Get the type nested inside Flag<?>
     Type parameter = ((ParameterizedType) field.getGenericType())
@@ -327,23 +328,18 @@ public final class Flags {
             (Class<?>) parameters[0],
             (Class<?>) parameters[1]);
       } else {
-        // for all other types, throw an unsupported exception
         throw new UnsupportedFlagTypeException(parameter);
       }
     } else if (parameter instanceof Class) {
       try {
-        if (((Class) parameter).isEnum()) {
-          // parse Enum types
-          field.set(
-              null,
-              Flags.valueOf(Enum.valueOf((Class) parameter, flagValueString)));
-        } else {
-          field.set(null, Flags.valueOf(valueOfString(flagValueString,
-              (Class<?>) parameter)));
-        }
+        field.set(null, Flags.valueOf(valueOfString(
+            flagValueString,
+            (Class<?>) parameter)));
       } catch (Exception e) {
         throw new FlagException(e);
       }
+    } else {
+      throw new UnsupportedFlagTypeException(parameter);
     }
   }
 
@@ -405,6 +401,8 @@ public final class Flags {
       Class<K> keyType,
       Class<V> valueType) {
     Map<K,V> elements = Maps.newHashMap();
+    flagValueString =
+        flagValueString.substring(1, flagValueString.length() - 1);
     String[] elementStrings = flagValueString.split(" ");
     for (String elementString : elementStrings) {
       String[] components = elementString.split(":");
