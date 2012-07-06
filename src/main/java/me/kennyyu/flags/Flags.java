@@ -20,10 +20,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * TODO(kennyyu) Add different exceptions (add exception for Flag<?>)
  * TODO(kennyyu) add tests
- * TODO(kennyyu) add javadoc
- * TODO(kennyyu) add check so that only Flag objects are annotated
+ * TODO(kennyyu) add javadoc about exceptions
  */
 public final class Flags {
 
@@ -86,6 +84,9 @@ public final class Flags {
    */
   public static void parse(String[] args) {
     Set<Field> fields = getAnnotatedFields();
+    ensureAnnotatedFieldsAreFlags(fields);
+
+    Set<Field> inacessibleFields = makeFieldsAccessible(fields);
     Map<String, String> helpMap = makeHelpMap(fields);
     Map<String, String> altNameToFullNameMap = makeAltNameToFullNameMap(fields);
     Set<String> allFieldsNameSet = makeAllFieldsNameSet(fields);
@@ -93,15 +94,30 @@ public final class Flags {
         args, allFieldsNameSet, altNameToFullNameMap);
     setFieldValues(fields, providedFieldValuesMap);
 
-    // print help message if --help was passed in, and exit
+    for (Field field : inacessibleFields) {
+      field.setAccessible(false);
+    }
+
     if (help.get()) {
       printHelp(helpMap);
     }
   }
 
   /**
-   * Return all {@link Field} objects annotated with {@link FlagDesc}. Also
-   * makes them publicly accessible so that their flag values can be modified.
+   * Ensures that all fields are Flag objects
+   * @param fields
+   * @throws IllegalFlagDescAnnotationException if any field is not a Flag
+   *     object.
+   */
+  private static void ensureAnnotatedFieldsAreFlags(Set<Field> fields) {
+    for (Field field : fields) {
+      if (!field.getType().equals(Flag.class))
+        throw new IllegalFlagDescAnnotationException(field);
+    }
+  }
+
+  /**
+   * @return all {@link Field} objects annotated with {@link FlagDesc}.
    */
   private static Set<Field> getAnnotatedFields() {
     Reflections reflections = new Reflections(
@@ -111,17 +127,27 @@ public final class Flags {
               new TypeAnnotationsScanner(),
               new TypesScanner(),
               new FieldAnnotationsScanner()));
-    Set<Field> fields = reflections.getFieldsAnnotatedWith(FlagDesc.class);
-
-    // set accessible to true so that we can access private fields
-    for (Field field : fields) {
-      field.setAccessible(true);
-    }
-    return fields;
+    return reflections.getFieldsAnnotatedWith(FlagDesc.class);
   }
 
   /**
-   * Returns a {@link Map} (flag name) -> (flag information).
+   * Retrieve all fields that are inaccessible from this class and marks them
+   * as accessible.
+   * @return the set of fields that were inaccessible.
+   */
+  private static Set<Field> makeFieldsAccessible(Set<Field> fields) {
+    Set<Field> inaccessibleFields = Sets.newHashSet();
+    for (Field field : fields) {
+      if (!field.isAccessible()) {
+        field.setAccessible(true);
+        inaccessibleFields.add(field);
+      }
+    }
+    return inaccessibleFields;
+  }
+
+  /**
+   * @return {@link Map} (flag name) -> (flag information).
    */
   private static Map<String, String> makeHelpMap(Set<Field> fields) {
     Map<String, String> helpMap = Maps.newTreeMap();
@@ -137,7 +163,7 @@ public final class Flags {
   }
 
   /**
-   * Returns a {@link Map} from (flag name or alternate name) -> (flag name).
+   * @return {@link Map} from (flag name or alternate name) -> (flag name).
    */
   private static Map<String, String> makeAltNameToFullNameMap(
       Set<Field> fields) {
@@ -153,7 +179,7 @@ public final class Flags {
   }
 
   /**
-   * Return a Set containing all the string versions of the flag names.
+   * @return {@link Set} containing all the string versions of the flag names.
    */
   private static Set<String> makeAllFieldsNameSet(Set<Field> fields) {
     Set<String> allFieldsNameSet = Sets.newHashSet();
@@ -161,14 +187,12 @@ public final class Flags {
       FlagDesc flagDescription = field.getAnnotation(FlagDesc.class);
       if (!flagDescription.altName().equals("")) {
         if (allFieldsNameSet.contains(flagDescription.altName())) {
-          throw new IllegalArgumentException(
-              "flag name duplicated: " + flagDescription.altName());
+          throw new DuplicateFlagNameException(flagDescription.altName());
         }
         allFieldsNameSet.add(flagDescription.altName());
       }
       if (allFieldsNameSet.contains(field.getName())) {
-        throw new IllegalArgumentException(
-            "flag name duplicated: " + field.getName());
+        throw new DuplicateFlagNameException(field.getName());
       }
       allFieldsNameSet.add(field.getName());
     }
@@ -216,7 +240,7 @@ public final class Flags {
 
       // throw exception if the flag is not recognized
       if (!allFieldsNameSet.contains(flagName)) {
-        throw new IllegalArgumentException("unknown flag: " + flagName);
+        throw new UnknownFlagException(flagName);
       }
 
       // get the flag's canonical name
@@ -228,7 +252,6 @@ public final class Flags {
 
   /**
    * Convert the string to the corresponding value of the provided class
-   *
    * @param value the string to be parsed
    * @param parsingClass the class to convert the string into
    */
@@ -248,9 +271,8 @@ public final class Flags {
     if (parsingClass.equals(Boolean.class)) {
       // handle special case where booleans don't require equal signs
       // e.g. "--isLarge=true" is the same as "--isLarge"
-      if (value.equals("")) {
+      if (value.equals(""))
         return parsingClass.cast(new Boolean(true));
-      }
       return parsingClass.cast(Boolean.parseBoolean(value));
     }
     if (parsingClass.equals(Character.class))
@@ -258,8 +280,7 @@ public final class Flags {
     if (parsingClass.equals(String.class)) {
       return parsingClass.cast(value);
     }
-    throw new IllegalArgumentException(
-        "Unsurpported Flag parameter type" + parsingClass);
+    throw new UnsupportedFlagTypeException(parsingClass);
   }
 
   /**
@@ -305,20 +326,23 @@ public final class Flags {
             flagValueString,
             (Class<?>) parameters[0],
             (Class<?>) parameters[1]);
+      } else {
+        // for all other types, throw an unsupported exception
+        throw new UnsupportedFlagTypeException(parameter);
       }
     } else if (parameter instanceof Class) {
-      // assign flag to value read from command line
       try {
         if (((Class) parameter).isEnum()) {
           // parse Enum types
-          field.set(null, Flags.valueOf(Enum.valueOf((Class) parameter, flagValueString)));
+          field.set(
+              null,
+              Flags.valueOf(Enum.valueOf((Class) parameter, flagValueString)));
         } else {
           field.set(null, Flags.valueOf(valueOfString(flagValueString,
               (Class<?>) parameter)));
         }
       } catch (Exception e) {
-        e.printStackTrace();
-        System.exit(-1);
+        throw new FlagException(e);
       }
     }
   }
@@ -341,8 +365,7 @@ public final class Flags {
     try {
       field.set(null, Flags.valueOf(elements));
     } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(-1);
+      throw new FlagException(e);
     }
   }
 
@@ -364,8 +387,7 @@ public final class Flags {
     try {
       field.set(null, Flags.valueOf(elements));
     } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(-1);
+      throw new FlagException(e);
     }
   }
 
@@ -387,8 +409,7 @@ public final class Flags {
     for (String elementString : elementStrings) {
       String[] components = elementString.split(":");
       if (components.length != 2) {
-        throw new IllegalArgumentException(
-            "Illegally formatted string in map: " + elementString);
+        throw new IllegalStringFlagException(elementString);
       }
       elements.put(
           valueOfString(components[0], keyType),
@@ -397,8 +418,7 @@ public final class Flags {
     try {
       field.set(null, Flags.valueOf(elements));
     } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(-1);
+      throw new FlagException(e);
     }
   }
 
@@ -406,9 +426,11 @@ public final class Flags {
    * Print out the help menu and quit.
    */
   private static void printHelp(Map<String, String> helpMap) {
+    StringBuilder builder = new StringBuilder();
     for (Entry<String, String> entry : helpMap.entrySet()) {
-      System.out.println(entry.getKey() + "\n    " + entry.getValue());
+      builder.append(entry.getKey() + "\n    " + entry.getValue());
     }
+    System.out.println(builder.toString());
     System.exit(0);
   }
 
