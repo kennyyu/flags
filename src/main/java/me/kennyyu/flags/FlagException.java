@@ -1,6 +1,6 @@
 package me.kennyyu.flags;
 
-public class FlagException extends RuntimeException {
+public class FlagException extends Exception {
 
   private static final long serialVersionUID = 3109773292095091239L;
 

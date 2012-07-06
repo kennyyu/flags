@@ -20,12 +20,74 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * TODO(kennyyu) add javadoc about exceptions
+ * Wrapper class containing utility methods for working with {@link Flag}
+ * objects.
+ *
+ * To create a new flag, create a new static {@link Flag} field. The parameter
+ * type of the field will be the type of the flag. Then annotate the field
+ * with {@link FlagInfo} and provide the necessary fields. Example:
+ *
+ *    @FlagDesc(help = "maximum number of threads to use", altName = "n")
+ *    private static Flag<Integer> maxNumThreads = Flag<Integer>.valueOf(4);
+ *
+ * This example declares a new flag indicating the maximum number of threads
+ * to use. On the right hand side, you may provide a default value for the flag.
+ * To pass in the value via command line, run the class with flags passed in
+ * the format:
+ *
+ *    java MyApp --maxNumThreads=5 -shortName=foo --booleanFlag ...
+ *
+ * Boolean flags have short hand where "--booleanFlag=true" is the same as
+ * "--boleanFlag".
+ *
+ * The currently supported types for flags include wrapper classes:
+ * {@link Integer}, {@link Long}, {@link Short}, {@link Boolean},
+ * {@link Double}, {@link Float}, {@link Character}, {@link String},
+ * {@link Byte}.
+ *
+ * Flags also support {@link Enum} types. Example:
+ *    private enum Status {
+ *      RUNNING,
+ *      SUSPENDED,
+ *      TERMINATED
+ *    }
+ *
+ *    @FlagSpec(help = "enum example")
+ *    private static Flag<Status> status = Flags.valueOf(Status.RUNNING);
+ *
+ *    java MyApp --status=TERMINATED
+ *
+ * Flags also support {@link Collection} types.
+ *
+ * To pass in a {@link List}:
+ *    @FlagDesc(help = "list example")
+ *    private static Flag<List<Integer>> list =
+ *        Flags.valueOf(new ArrayList<Integer>());
+ *
+ *    java MyApp --list=3,4,5,6,6,7
+ *
+ * To pass in a {@link Set}:
+ *    @FlagDesc(help = "set example")
+ *    private static Flag<Set<String>> set =
+ *        Flags.valueOf(new HashSet<String>());
+ *
+ *    java MyApp --set=foo,cheese,bar
+ *
+ * To pass in a {@link Map}:
+ *    @FlagDesc(help = "map example")
+ *    private static Flag<Map<String, Integer>> map =
+ *        Flags.valueOf(new HashMap<String, Integer>());
+ *
+ *    java MyApp --map="foo:3 bar:4 cheese:5 bam:6"
+ * The (key,value) pairs must be passed inside double quotes in the form
+ * key:value separated by spaces.
+ *
+ * To parse the flags from the command line, use {@link #parse(String[])}, or
+ * use {@link #parseWithExceptions(String[])} to force catching checked
+ * exceptions.
  */
 public final class Flags {
-
-  @FlagDesc(help = "display this help menu", altName="h")
-  private static Flag<Boolean> help = Flags.valueOf(false);
+  private Flags() {};
 
   /**
    * Create a {@link Flag} with the given value.
@@ -71,17 +133,33 @@ public final class Flags {
     }
   }
 
+  @FlagInfo(help = "display this help menu", altName="h")
+  private static Flag<Boolean> help = Flags.valueOf(false);
+
   /**
    * Parses the command line arguments and updates as necessary all {@link Flag}
-   * objects annotated with {@link FlagDesc}.
+   * objects annotated with {@link FlagInfo}.
    *
    * If "--help" of "-h" is passed in at the command line, then the help menu
-   * will be printed and the program will terminate.
+   * will be printed and the JVM will exit with a 0 exit status.
    *
    * @param args command line arguments in the form
    *     "--defaultFlagName=value --booleanFlag -c=foo ..."
+   * @throws FlagException if any field is not a Flag object, or if a flag
+   *    passed at the command line is not recognized
    */
   public static void parse(String[] args) {
+    try {
+      parseWithExceptions(args);
+    } catch (FlagException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Same as {@link #parse(String[])}, but forces the user to catch exceptions.
+   */
+  public static void parseWithExceptions(String[] args) throws FlagException {
     Set<Field> fields = getAnnotatedFields();
     ensureAnnotatedFieldsAreFlags(fields);
 
@@ -93,6 +171,7 @@ public final class Flags {
         args, allFieldsNameSet, altNameToFullNameMap);
     setFieldValues(fields, providedFieldValuesMap);
 
+    // mark previously inaccessible fields as inaccessible again
     for (Field field : inacessibleFields) {
       field.setAccessible(false);
     }
@@ -105,10 +184,10 @@ public final class Flags {
   /**
    * Ensures that all fields are Flag objects
    * @param fields
-   * @throws IllegalFlagAnnotationException if any field is not a Flag
-   *     object.
+   * @throws IllegalFlagAnnotationException if any field is not a Flag object
    */
-  private static void ensureAnnotatedFieldsAreFlags(Set<Field> fields) {
+  private static void ensureAnnotatedFieldsAreFlags(Set<Field> fields)
+      throws IllegalFlagAnnotationException {
     for (Field field : fields) {
       if (!field.getType().equals(Flag.class))
         throw new IllegalFlagAnnotationException(field);
@@ -116,7 +195,7 @@ public final class Flags {
   }
 
   /**
-   * @return all {@link Field} objects annotated with {@link FlagDesc}.
+   * @return all {@link Field} objects annotated with {@link FlagInfo}.
    */
   private static Set<Field> getAnnotatedFields() {
     Reflections reflections = new Reflections(
@@ -126,7 +205,7 @@ public final class Flags {
               new TypeAnnotationsScanner(),
               new TypesScanner(),
               new FieldAnnotationsScanner()));
-    return reflections.getFieldsAnnotatedWith(FlagDesc.class);
+    return reflections.getFieldsAnnotatedWith(FlagInfo.class);
   }
 
   /**
@@ -146,12 +225,12 @@ public final class Flags {
   }
 
   /**
-   * @return {@link Map} (flag name) -> (flag information).
+   * @return {@link Map} mapping (flag name) -> (flag information).
    */
   private static Map<String, String> makeHelpMap(Set<Field> fields) {
     Map<String, String> helpMap = Maps.newTreeMap();
     for (Field field : fields) {
-      FlagDesc flagDescription = field.getAnnotation(FlagDesc.class);
+      FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
       String combinedFlagNames = flagDescription.altName().equals("")
           ? field.getName()
           : field.getName() + ", -" + flagDescription.altName();
@@ -162,13 +241,13 @@ public final class Flags {
   }
 
   /**
-   * @return {@link Map} from (flag name or alternate name) -> (flag name).
+   * @return {@link Map} mapping (flag name or alternate name) -> (flag name).
    */
   private static Map<String, String> makeAltNameToFullNameMap(
       Set<Field> fields) {
     Map<String, String> altNameToFullNameMap = Maps.newHashMap();
     for (Field field : fields) {
-      FlagDesc flagDescription = field.getAnnotation(FlagDesc.class);
+      FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
       if (!flagDescription.altName().equals("")) {
         altNameToFullNameMap.put(flagDescription.altName(), field.getName());
       }
@@ -179,11 +258,13 @@ public final class Flags {
 
   /**
    * @return {@link Set} containing all the string versions of the flag names.
+   * @throws DuplicateFlagNameException if multiple flags have the same name
    */
-  private static Set<String> makeAllFieldsNameSet(Set<Field> fields) {
+  private static Set<String> makeAllFieldsNameSet(Set<Field> fields)
+      throws DuplicateFlagNameException {
     Set<String> allFieldsNameSet = Sets.newHashSet();
     for (Field field : fields) {
-      FlagDesc flagDescription = field.getAnnotation(FlagDesc.class);
+      FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
       if (!flagDescription.altName().equals("")) {
         if (allFieldsNameSet.contains(flagDescription.altName())) {
           throw new DuplicateFlagNameException(flagDescription.altName());
@@ -206,12 +287,14 @@ public final class Flags {
    * @param args strings of the form "--flagName=stringValue"
    * @param allFieldsNameSet set of all possible flags as strings
    * @param altNameToFullNameMap map from all possible names of a flag to the
-   *    flags canonical name
+   *    flag's canonical name
+   * @throws UnknownFlagNameException if a flag passed at the command line is not
+   *    recognized
    */
   private static Map<String, String> makeProvidedFieldValuesMap(
       String[] args,
       Set<String> allFieldsNameSet,
-      Map<String, String> altNameToFullNameMap) {
+      Map<String, String> altNameToFullNameMap) throws UnknownFlagNameException {
     Map<String, String> providedFieldValuesMap = Maps.newHashMap();
     for (String arg : args) {
       String flagName = "";
@@ -239,7 +322,7 @@ public final class Flags {
 
       // throw exception if the flag is not recognized
       if (!allFieldsNameSet.contains(flagName)) {
-        throw new UnknownFlagException(flagName);
+        throw new UnknownFlagNameException(flagName);
       }
 
       // get the flag's canonical name
@@ -250,48 +333,13 @@ public final class Flags {
   }
 
   /**
-   * Convert the string to the corresponding value of the provided class
-   * @param value the string to be parsed
-   * @param parsingClass the class to convert the string into
-   */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static <T> T valueOfString(String value, Class<T> parsingClass) {
-    if (parsingClass.isEnum())
-      return (T) Enum.valueOf((Class) parsingClass, value);
-    if (parsingClass.equals(Byte.class))
-      return parsingClass.cast(new Byte((byte) Integer.parseInt(value, 16)));
-    if (parsingClass.equals(Short.class))
-      return parsingClass.cast(Short.parseShort(value));
-    if (parsingClass.equals(Integer.class))
-      return parsingClass.cast(Integer.parseInt(value));
-    if (parsingClass.equals(Long.class))
-      return parsingClass.cast(Long.parseLong(value));
-    if (parsingClass.equals(Float.class))
-      return parsingClass.cast(Float.parseFloat(value));
-    if (parsingClass.equals(Double.class))
-      return parsingClass.cast(Double.parseDouble(value));
-    if (parsingClass.equals(Boolean.class)) {
-      // handle special case where booleans don't require equal signs
-      // e.g. "--isLarge=true" is the same as "--isLarge"
-      if (value.equals(""))
-        return parsingClass.cast(new Boolean(true));
-      return parsingClass.cast(Boolean.parseBoolean(value));
-    }
-    if (parsingClass.equals(Character.class))
-      return parsingClass.cast(value.charAt(0));
-    if (parsingClass.equals(String.class)) {
-      return parsingClass.cast(value);
-    }
-    throw new UnsupportedFlagTypeException(parsingClass);
-  }
-
-  /**
    * Updates all flags to the values provided at the command line.
+   * @throws FlagException if the field cannot be assessed
    */
   private static void setFieldValues(
       Set<Field> fields,
       Map<String,
-      String> providedFieldValuesMap) {
+      String> providedFieldValuesMap) throws FlagException {
     for (Field field : fields) {
       String flagValueString = providedFieldValuesMap.get(field.getName());
       if (flagValueString != null) { // check if the flag was provided
@@ -302,8 +350,11 @@ public final class Flags {
 
   /**
    * Updates field to be the corresponding value of flagValueString.
+   * @throws FlagException if the type nested in the flag is illegal, or if the
+   *    field cannot be accessed
    */
-  private static void setField(Field field, String flagValueString) {
+  private static void setField(Field field, String flagValueString)
+      throws FlagException {
     // Get the type nested inside Flag<?>
     Type parameter = ((ParameterizedType) field.getGenericType())
         .getActualTypeArguments()[0];
@@ -348,11 +399,12 @@ public final class Flags {
    * @param field the field to update
    * @param flagValueString comma separated list of values in this list
    * @param parameterType the type nested in this list
+   * @throws FlagException if the field cannot be accessed
    */
   private static <T> void setListField(
       Field field,
       String flagValueString,
-      Class<T> parameterType) {
+      Class<T> parameterType) throws FlagException {
     List<T> elements = Lists.newArrayList();
     String[] elementStrings = flagValueString.split(",");
     for (String elementString : elementStrings) {
@@ -370,11 +422,12 @@ public final class Flags {
    * @param field the field to update
    * @param flagValueString comma separated list of values in this list
    * @param parameterType the type nested in this list
+   * @throws FlagException if the field cannot be accessed
    */
   private static <T> void setSetField(
       Field field,
       String flagValueString,
-      Class<T> parameterType) {
+      Class<T> parameterType) throws FlagException {
     Set<T> elements = Sets.newHashSet();
     String[] elementStrings = flagValueString.split(",");
     for (String elementString : elementStrings) {
@@ -394,12 +447,14 @@ public final class Flags {
    *    "key1:value1 key2:value2 ..."
    * @param keyType type of the Key
    * @param valueType type of the Value
+   * @throws FlagException if the map string is not properly formatted or if the
+   *    field cannot be accessed
    */
   private static <K,V> void setMapField(
       Field field,
       String flagValueString,
       Class<K> keyType,
-      Class<V> valueType) {
+      Class<V> valueType) throws FlagException {
     Map<K,V> elements = Maps.newHashMap();
     flagValueString =
         flagValueString.substring(1, flagValueString.length() - 1);
@@ -418,6 +473,45 @@ public final class Flags {
     } catch (Exception e) {
       throw new FlagException(e);
     }
+  }
+
+  /**
+   * Convert the string to the corresponding value of the provided class
+   * @param value the string to be parsed
+   * @param parsingClass the class to convert the string into
+   * @throws UnsupportedFlagTypeException if the type nested in the flag is not
+   *     supported
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private static <T> T valueOfString(String value, Class<T> parsingClass)
+      throws UnsupportedFlagTypeException {
+    if (parsingClass.isEnum())
+      return (T) Enum.valueOf((Class) parsingClass, value);
+    if (parsingClass.equals(Byte.class))
+      return parsingClass.cast(new Byte((byte) Integer.parseInt(value, 16)));
+    if (parsingClass.equals(Short.class))
+      return parsingClass.cast(Short.parseShort(value));
+    if (parsingClass.equals(Integer.class))
+      return parsingClass.cast(Integer.parseInt(value));
+    if (parsingClass.equals(Long.class))
+      return parsingClass.cast(Long.parseLong(value));
+    if (parsingClass.equals(Float.class))
+      return parsingClass.cast(Float.parseFloat(value));
+    if (parsingClass.equals(Double.class))
+      return parsingClass.cast(Double.parseDouble(value));
+    if (parsingClass.equals(Boolean.class)) {
+      // handle special case where booleans don't require equal signs
+      // e.g. "--isLarge=true" is the same as "--isLarge"
+      if (value.equals(""))
+        return parsingClass.cast(new Boolean(true));
+      return parsingClass.cast(Boolean.parseBoolean(value));
+    }
+    if (parsingClass.equals(Character.class))
+      return parsingClass.cast(value.charAt(0));
+    if (parsingClass.equals(String.class)) {
+      return parsingClass.cast(value);
+    }
+    throw new UnsupportedFlagTypeException(parsingClass);
   }
 
   /**

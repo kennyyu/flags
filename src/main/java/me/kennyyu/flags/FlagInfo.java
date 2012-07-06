@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface FlagDesc {
+public @interface FlagInfo {
 
   /**
    * Help information on how to use this flag.

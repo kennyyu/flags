@@ -9,7 +9,7 @@ public class IllegalFlagAnnotationException extends FlagException {
   public IllegalFlagAnnotationException(Field field) {
     super("field: " + field.toGenericString()
         + " from " + field.getDeclaringClass() + " cannot be annotated with "
-        + FlagDesc.class);
+        + FlagInfo.class);
   }
 
 }

@@ -15,49 +15,49 @@ import com.google.common.collect.Sets;
 
 public class FlagTest {
 
-  @FlagDesc(help = "flagInteger", altName = "int")
+  @FlagInfo(help = "flagInteger", altName = "int")
   private static Flag<Integer> flagInteger = Flags.valueOf(0);
 
-  @FlagDesc(help = "flagLong", altName = "long")
+  @FlagInfo(help = "flagLong", altName = "long")
   private static Flag<Long> flagLong = Flags.valueOf(0L);
 
-  @FlagDesc(help = "flagDouble", altName = "double")
+  @FlagInfo(help = "flagDouble", altName = "double")
   private static Flag<Double> flagDouble = Flags.valueOf(0.0);
 
-  @FlagDesc(help = "flagFloat", altName = "float")
+  @FlagInfo(help = "flagFloat", altName = "float")
   private static Flag<Float> flagFloat = Flags.valueOf((float) 0.0);
 
-  @FlagDesc(help = "flagBoolean", altName = "boolean")
+  @FlagInfo(help = "flagBoolean", altName = "boolean")
   private static Flag<Boolean> flagBoolean = Flags.valueOf(false);
 
-  @FlagDesc(help = "flagCharacter", altName = "char")
+  @FlagInfo(help = "flagCharacter", altName = "char")
   private static Flag<Character> flagCharacter = Flags.valueOf('\0');
 
-  @FlagDesc(help = "flagString", altName = "string")
+  @FlagInfo(help = "flagString", altName = "string")
   private static Flag<String> flagString = Flags.valueOf("");
 
-  @FlagDesc(help = "flagByte", altName = "byte")
+  @FlagInfo(help = "flagByte", altName = "byte")
   private static Flag<Byte> flagByte = Flags.valueOf((byte) 0x00);
 
-  @FlagDesc(help = "flagAlt", altName = "short")
+  @FlagInfo(help = "flagAlt", altName = "short")
   private static Flag<Short> flagShort = Flags.valueOf((short) 0);
 
-  @FlagDesc(help = "flagList", altName = "list")
+  @FlagInfo(help = "flagList", altName = "list")
   private static Flag<List<Integer>> flagList =
       Flags.valueOf(Lists.<Integer>newArrayList());
 
-  @FlagDesc(help = "flagSet", altName = "set")
+  @FlagInfo(help = "flagSet", altName = "set")
   private static Flag<Set<String>> flagSet =
       Flags.valueOf(Sets.<String>newHashSet());
 
-  @FlagDesc(help = "flagMap", altName = "map")
+  @FlagInfo(help = "flagMap", altName = "map")
   private static Flag<Map<String, Integer>> flagMap =
       Flags.valueOf(Maps.<String, Integer>newHashMap());
 
-  @FlagDesc(help = "flagEnum", altName = "enum")
+  @FlagInfo(help = "flagEnum", altName = "enum")
   private static Flag<Day> flagEnum = Flags.valueOf(Day.SUNDAY);
 
-  @FlagDesc(help = "flagSetEnum", altName = "setEnum")
+  @FlagInfo(help = "flagSetEnum", altName = "setEnum")
   private static Flag<Set<Day>> flagSetEnum =
       Flags.valueOf(Sets.<Day>newHashSet());
 
