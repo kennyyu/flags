@@ -105,13 +105,13 @@ public final class Flags {
   /**
    * Ensures that all fields are Flag objects
    * @param fields
-   * @throws IllegalFlagDescAnnotationException if any field is not a Flag
+   * @throws IllegalFlagAnnotationException if any field is not a Flag
    *     object.
    */
   private static void ensureAnnotatedFieldsAreFlags(Set<Field> fields) {
     for (Field field : fields) {
       if (!field.getType().equals(Flag.class))
-        throw new IllegalFlagDescAnnotationException(field);
+        throw new IllegalFlagAnnotationException(field);
     }
   }
 
