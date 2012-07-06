@@ -280,6 +280,7 @@ public final class Flags {
   /**
    * Updates field to be the corresponding value of flagValueString.
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   private static void setField(Field field, String flagValueString) {
     // Get the type nested inside Flag<?>
     Type parameter = ((ParameterizedType) field.getGenericType())
@@ -305,11 +306,16 @@ public final class Flags {
             (Class<?>) parameters[0],
             (Class<?>) parameters[1]);
       }
-    } else {
+    } else if (parameter instanceof Class) {
       // assign flag to value read from command line
       try {
-        field.set(null, Flags.valueOf(valueOfString(flagValueString,
-            (Class<?>) parameter)));
+        if (((Class) parameter).isEnum()) {
+          // parse Enum types
+          field.set(null, Flags.valueOf(Enum.valueOf((Class) parameter, flagValueString)));
+        } else {
+          field.set(null, Flags.valueOf(valueOfString(flagValueString,
+              (Class<?>) parameter)));
+        }
       } catch (Exception e) {
         e.printStackTrace();
         System.exit(-1);
