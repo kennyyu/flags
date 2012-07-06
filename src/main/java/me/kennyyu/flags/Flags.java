@@ -257,7 +257,7 @@ public final class Flags {
    */
   private static <T> T valueOfString(String value, Class<T> parsingClass) {
     if (parsingClass.equals(Byte.class))
-      return parsingClass.cast(Byte.parseByte(value));
+      return parsingClass.cast(new Byte((byte) Integer.parseInt(value, 16)));
     if (parsingClass.equals(Short.class))
       return parsingClass.cast(Short.parseShort(value));
     if (parsingClass.equals(Integer.class))
