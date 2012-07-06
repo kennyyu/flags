@@ -3,7 +3,7 @@ Flag library for Java
 -   Author: Kenny Yu
 -   Package: me.kennyyu.flags
 
-How to create a flag
+How to Create a Flag
 ====================
 To create a new flag, create a new static `me.kennyyu.flags.Flag` field.
 The parameter type of the field will be the type of the flag. Then annotate
