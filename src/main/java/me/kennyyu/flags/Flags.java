@@ -407,7 +407,7 @@ public final class Flags {
     for (String elementString : elementStrings) {
       String[] components = elementString.split(":");
       if (components.length != 2) {
-        throw new IllegalStringFlagException(elementString);
+        throw new IllegalFlagFormatException(elementString);
       }
       elements.put(
           valueOfString(components[0], keyType),
