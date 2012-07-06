@@ -5,7 +5,7 @@ Flag library for Java
 
 How to create a flag
 ====================
-To create a new flag, create a new static `me.kennyyu.flags.Flag field`.
+To create a new flag, create a new static `me.kennyyu.flags.Flag` field.
 The parameter type of the field will be the type of the flag. Then annotate
 the field with `me.kennyyu.flags.FlagInfo` and provide the necessary fields.
 Example:
@@ -23,6 +23,8 @@ the format:
 All classes referenced from the main class with flags will be available
 as options.
 
+Supported Flag Types
+====================
 Boolean flags have short hand where `--booleanFlag=true` is the same as
 `--boleanFlag`.
 
@@ -38,6 +40,8 @@ The currently supported types for flags include wrapper classes:
 -   Byte
 
 Flags also support `Enum` types. Example:
+
+
     private enum Status {
       RUNNING,
       SUSPENDED,
@@ -48,30 +52,41 @@ Flags also support `Enum` types. Example:
     private static Flag<Status> status = Flags.valueOf(Status.RUNNING);
 
 To run it:
+
     $ java MyApp --status=TERMINATED
 
 Flags also support `Collection` types.
 
 To pass in a `List`:
+
     @FlagDesc(help = "list example")
     private static Flag<List<Integer>> list =
         Flags.valueOf(new ArrayList<Integer>());
+
 To run it:
+
     $ java MyApp --list=3,4,5,6,6,7
 
 To pass in a `Set`:
+
     @FlagDesc(help = "set example")
     private static Flag<Set<String>> set =
         Flags.valueOf(new HashSet<String>());
+
 To run it:
+
     $ java MyApp --set=foo,cheese,bar
 
 To pass in a `Map`:
+
     @FlagDesc(help = "map example")
     private static Flag<Map<String, Integer>> map =
         Flags.valueOf(new HashMap<String, Integer>());
+
 To run it:
+
     $ java MyApp --map="foo:3 bar:4 cheese:5 bam:6"
+
 The (key,value) pairs must be passed inside double quotes in the form
 key:value separated by spaces.
 
