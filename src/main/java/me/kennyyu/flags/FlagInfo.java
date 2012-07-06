@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
  * {@link Flags#parse(String[])} is called, all {@link Flag} fields with this
  * annotation will be scanned, and the flags will be updated to reflect the
  * values provided at the command line.
+ *
+ * @author kennyyu (Kenny Yu)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

@@ -13,6 +13,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+/**
+ * Tests for {@link Flags}.
+ *
+ * @author kennyyu (Kenny Yu)
+ */
 public class FlagTest {
 
   @FlagInfo(help = "flagInteger", altName = "int")

@@ -7,6 +7,7 @@ package me.kennyyu.flags;
  * fields, and may or may not be private.
  *
  * @param <T> the type this flag holds.
+ * @author kennyyu (Kenny Yu)
  */
 public interface Flag<T> {
 

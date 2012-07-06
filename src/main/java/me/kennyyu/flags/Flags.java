@@ -88,6 +88,8 @@ import com.google.common.collect.Sets;
  * To parse the flags from the command line, use {@link #parse(String[])}, or
  * use {@link #parseWithExceptions(String[])} to force catching checked
  * exceptions.
+ *
+ * @author kennyyu (Kenny Yu)
  */
 public final class Flags {
   private Flags() {};
