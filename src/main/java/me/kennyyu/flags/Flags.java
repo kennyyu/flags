@@ -37,6 +37,9 @@ import com.google.common.collect.Sets;
  *
  *    java MyApp --maxNumThreads=5 -shortName=foo --booleanFlag ...
  *
+ * All classes referenced from the main class with flags will be available
+ * as options.
+ *
  * Boolean flags have short hand where "--booleanFlag=true" is the same as
  * "--boleanFlag".
  *

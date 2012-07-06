@@ -38,7 +38,6 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>me.kennyyu.flags.FlagMainTest</mainClass>
             </manifest>
           </archive>
         </configuration>
