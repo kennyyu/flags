@@ -428,7 +428,7 @@ public final class Flags {
   private static void printHelp(Map<String, String> helpMap) {
     StringBuilder builder = new StringBuilder();
     for (Entry<String, String> entry : helpMap.entrySet()) {
-      builder.append(entry.getKey() + "\n    " + entry.getValue());
+      builder.append(entry.getKey() + "\n    " + entry.getValue() + "\n");
     }
     System.out.println(builder.toString());
     System.exit(0);
