@@ -1,7 +1,7 @@
 Flag library for Java
 =====================
 -   Author: Kenny Yu
--   Package: me.kennyyu.flags
+-   Package: `me.kennyyu.flags`
 
 How to Create a Flag
 ====================
