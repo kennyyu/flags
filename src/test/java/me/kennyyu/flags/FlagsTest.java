@@ -20,49 +20,49 @@ import com.google.common.collect.Sets;
  */
 public class FlagsTest {
 
-  @FlagInfo(help = "flagInteger", altName = "int")
+  @FlagInfo(help = "flagInteger", altName = "int", environment = "testing")
   private static Flag<Integer> flagInteger = Flags.valueOf(0);
 
-  @FlagInfo(help = "flagLong", altName = "long")
+  @FlagInfo(help = "flagLong", altName = "long", environment = "testing")
   private static Flag<Long> flagLong = Flags.valueOf(0L);
 
-  @FlagInfo(help = "flagDouble", altName = "double")
+  @FlagInfo(help = "flagDouble", altName = "double", environment = "testing")
   private static Flag<Double> flagDouble = Flags.valueOf(0.0);
 
-  @FlagInfo(help = "flagFloat", altName = "float")
+  @FlagInfo(help = "flagFloat", altName = "float", environment = "testing")
   private static Flag<Float> flagFloat = Flags.valueOf((float) 0.0);
 
-  @FlagInfo(help = "flagBoolean", altName = "boolean")
+  @FlagInfo(help = "flagBoolean", altName = "boolean", environment = "testing")
   private static Flag<Boolean> flagBoolean = Flags.valueOf(false);
 
-  @FlagInfo(help = "flagCharacter", altName = "char")
+  @FlagInfo(help = "flagCharacter", altName = "char", environment = "testing")
   private static Flag<Character> flagCharacter = Flags.valueOf('\0');
 
-  @FlagInfo(help = "flagString", altName = "string")
+  @FlagInfo(help = "flagString", altName = "string", environment = "testing")
   private static Flag<String> flagString = Flags.valueOf("");
 
-  @FlagInfo(help = "flagByte", altName = "byte")
+  @FlagInfo(help = "flagByte", altName = "byte", environment = "testing")
   private static Flag<Byte> flagByte = Flags.valueOf((byte) 0x00);
 
-  @FlagInfo(help = "flagAlt", altName = "short")
+  @FlagInfo(help = "flagAlt", altName = "short", environment = "testing")
   private static Flag<Short> flagShort = Flags.valueOf((short) 0);
 
-  @FlagInfo(help = "flagList", altName = "list")
+  @FlagInfo(help = "flagList", altName = "list", environment = "testing")
   private static Flag<List<Integer>> flagList =
       Flags.valueOf(Lists.<Integer>newArrayList());
 
-  @FlagInfo(help = "flagSet", altName = "set")
+  @FlagInfo(help = "flagSet", altName = "set", environment = "testing")
   private static Flag<Set<String>> flagSet =
       Flags.valueOf(Sets.<String>newHashSet());
 
-  @FlagInfo(help = "flagMap", altName = "map")
+  @FlagInfo(help = "flagMap", altName = "map", environment = "testing")
   private static Flag<Map<String, Integer>> flagMap =
       Flags.valueOf(Maps.<String, Integer>newHashMap());
 
-  @FlagInfo(help = "flagEnum", altName = "enum")
+  @FlagInfo(help = "flagEnum", altName = "enum", environment = "testing")
   private static Flag<Day> flagEnum = Flags.valueOf(Day.SUNDAY);
 
-  @FlagInfo(help = "flagSetEnum", altName = "setEnum")
+  @FlagInfo(help = "flagSetEnum", altName = "setEnum", environment = "testing")
   private static Flag<Set<Day>> flagSetEnum =
       Flags.valueOf(Sets.<Day>newHashSet());
 
@@ -97,147 +97,147 @@ public class FlagsTest {
   @Test
   public void testIntegerFull() {
     String[] args = {"--flagInteger=7"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(7, flagInteger.get());
   }
 
   @Test
   public void testIntegerAlt() {
     String[] args = {"-int=-5"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(-5, flagInteger.get());
   }
 
   @Test
   public void testLongFull() {
     String[] args = {"--flagLong=7"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(7L, flagLong.get());
   }
 
   @Test
   public void testLongAlt() {
     String[] args = {"-long=-5"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(-5L, flagLong.get());
   }
 
   @Test
   public void testDoubleFull() {
     String[] args = {"--flagDouble=5.6"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(5.6, flagDouble.get());
   }
 
   @Test
   public void testDoubleAlt() {
     String[] args = {"-double=-5.4"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(-5.4, flagDouble.get());
   }
 
   @Test
   public void testFloatFull() {
     String[] args = {"--flagFloat=5.6"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals((float) 5.6, flagFloat.get());
   }
 
   @Test
   public void testFloatAlt() {
     String[] args = {"-float=-5.4"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals((float) -5.4, flagFloat.get());
   }
 
   @Test
   public void testBooleanFull() {
     String[] args = {"--flagBoolean=true"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(true, flagBoolean.get());
   }
 
   @Test
   public void testBooleanAlt() {
     String[] args = {"-boolean=true"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(true, flagBoolean.get());
   }
 
   @Test
   public void testBooleanFullDefault() {
     String[] args = {"--flagBoolean"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(true, flagBoolean.get());
   }
 
   @Test
   public void testBooleanAltDefault() {
     String[] args = {"-boolean"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(true, flagBoolean.get());
   }
 
   @Test
   public void testCharacterFull() {
     String[] args = {"--flagCharacter=c"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals('c', flagCharacter.get());
   }
 
   @Test
   public void testCharacterAlt() {
     String[] args = {"-char=d"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals('d', flagCharacter.get());
   }
 
   @Test
   public void testStringFull() {
     String[] args = {"--flagString=bar"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals("bar", flagString.get());
   }
 
   @Test
   public void testStringAlt() {
     String[] args = {"-string=foo"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals("foo", flagString.get());
   }
 
   @Test
   public void testByteFull() {
     String[] args = {"--flagByte=AB"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals((byte) 0xAB, flagByte.get());
   }
 
   @Test
   public void testByteAlt() {
     String[] args = {"-byte=-AB"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals((byte) -0xAB, flagByte.get());
   }
 
   @Test
   public void testShortFull() {
     String[] args = {"--flagShort=2"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals((short) 2, flagShort.get());
   }
 
   @Test
   public void testShortAlt() {
     String[] args = {"-short=-2"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals((short) -2, flagShort.get());
   }
 
   @Test
   public void testListFull() {
     String[] args = {"--flagList=4,6,7,23,-4"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     List<Integer> list = Lists.newArrayList(4, 6, 7, 23, -4);
     assertEquals(list, flagList.get());
   }
@@ -245,7 +245,7 @@ public class FlagsTest {
   @Test
   public void testListAlt() {
     String[] args = {"-list=4,6,7,-4"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     List<Integer> list = Lists.newArrayList(4, 6, 7, -4);
     assertEquals(list, flagList.get());
   }
@@ -253,7 +253,7 @@ public class FlagsTest {
   @Test
   public void testSetFull() {
     String[] args = {"--flagSet=foo,cheese,bar,foo,bar,bam"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     Set<String> set = Sets.newHashSet("foo", "cheese", "bar", "bam");
     assertEquals(set, flagSet.get());
   }
@@ -261,7 +261,7 @@ public class FlagsTest {
   @Test
   public void testSetAlt() {
     String[] args = {"-set=foo,cheese"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     Set<String> set = Sets.newHashSet("foo", "cheese");
     assertEquals(set, flagSet.get());
   }
@@ -269,7 +269,7 @@ public class FlagsTest {
   @Test
   public void testMapFull() {
     String[] args = {"--flagMap=\"foo:4 cheese:5 bar:6 bam:7 foo:8\""};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     Map<String, Integer> map = Maps.newHashMap();
     map.put("foo", 8);
     map.put("cheese", 5);
@@ -281,7 +281,7 @@ public class FlagsTest {
   @Test
   public void testMapAlt() {
     String[] args = {"-map=\"foo:4 cheese:5 bar:6 bam:7 foo:8 dang:9\""};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     Map<String, Integer> map = Maps.newHashMap();
     map.put("foo", 8);
     map.put("cheese", 5);
@@ -294,21 +294,21 @@ public class FlagsTest {
   @Test
   public void testEnumFull() {
     String[] args = {"--flagEnum=TUESDAY"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(Day.TUESDAY, flagEnum.get());
   }
 
   @Test
   public void testEnumAlt() {
     String[] args = {"-enum=SATURDAY"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     assertEquals(Day.SATURDAY, flagEnum.get());
   }
 
   @Test
   public void testSetEnumFull() {
     String[] args = {"--flagSetEnum=TUESDAY,WEDNESDAY,THURSDAY"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     Set<Day> set = Sets.newHashSet(Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY);
     assertEquals(set, flagSetEnum.get());
   }
@@ -316,8 +316,9 @@ public class FlagsTest {
   @Test
   public void testSetEnumAlt() {
     String[] args = {"--flagSetEnum=MONDAY,SATURDAY"};
-    Flags.parse(args);
+    Flags.parse(args, "testing");
     Set<Day> set = Sets.newHashSet(Day.MONDAY, Day.SATURDAY);
     assertEquals(set, flagSetEnum.get());
   }
+
 }

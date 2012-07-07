@@ -15,6 +15,7 @@ import org.reflections.scanners.TypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -150,22 +151,40 @@ public final class Flags {
    *
    * @param args command line arguments in the form
    *     "--defaultFlagName=value --booleanFlag -c=foo ..."
+   * @param flagEnvs Set of flag environments to load. All files in the current
+   *     classpath marked with a flag environment in flagEnv will be loaded.
    * @throws FlagException if any field is not a Flag object, or if a flag
    *    passed at the command line is not recognized
    */
-  public static void parse(String[] args) {
+  public static void parse(String[] args, Set<String> flagEnvs) {
     try {
-      parseWithExceptions(args);
+      parseWithExceptions(args, flagEnvs);
     } catch (FlagException e) {
       throw new RuntimeException(e);
     }
   }
 
   /**
-   * Same as {@link #parse(String[])}, but forces the user to catch exceptions.
+   * Same as {@literal parse(args, ImmutableSet.of(flagEnv)))}.
    */
-  public static void parseWithExceptions(String[] args) throws FlagException {
-    Set<Field> fields = getAnnotatedFields();
+  public static void parse(String[] args, String flagEnv) {
+    parse(args, ImmutableSet.of(flagEnv));
+  }
+
+  /**
+   * Same as {@literal parse(args, "")}.
+   */
+  public static void parse(String[] args) {
+    parse(args, "");
+  }
+
+  /**
+   * Same as {@link #parse(String[], Set)}, but forces the user to catch
+   * exceptions.
+   */
+  public static void parseWithExceptions(String[] args, Set<String> flagEnvs)
+      throws FlagException {
+    Set<Field> fields = getAnnotatedFields(flagEnvs);
     ensureAnnotatedFieldsAreFlags(fields);
 
     Set<Field> inacessibleFields = makeFieldsAccessible(fields);
@@ -187,6 +206,21 @@ public final class Flags {
   }
 
   /**
+   * Same as {@literal parseWithExceptions(args, ImmutableSet.of(flagEnv))}.
+   */
+  public static void parseWithExceptions(String[] args, String flagEnv)
+      throws FlagException {
+    parseWithExceptions(args, ImmutableSet.of(flagEnv));
+  }
+
+  /**
+   * Same as {@literal parseWithExceptions(args, "")}.
+   */
+  public static void parseWithExceptions(String[] args) throws FlagException {
+    parseWithExceptions(args, "");
+  }
+
+  /**
    * Ensures that all fields are Flag objects
    * @param fields
    * @throws IllegalFlagAnnotationException if any field is not a Flag object
@@ -200,17 +234,27 @@ public final class Flags {
   }
 
   /**
+   * Returns all fields annotated with {@link FlagInfo}
+   * @param flagEnvs See {@link #parse(String[], Set)}
    * @return all {@link Field} objects annotated with {@link FlagInfo}.
    */
-  private static Set<Field> getAnnotatedFields() {
-    Reflections reflections = new Reflections(
-        new ConfigurationBuilder()
-          .setUrls(ClasspathHelper.forJavaClassPath())
-          .setScanners(
-              new TypeAnnotationsScanner(),
-              new TypesScanner(),
-              new FieldAnnotationsScanner()));
-    return reflections.getFieldsAnnotatedWith(FlagInfo.class);
+  private static Set<Field> getAnnotatedFields(Set<String> flagEnvs) {
+    ConfigurationBuilder builder = new ConfigurationBuilder()
+        .setUrls(ClasspathHelper.forJavaClassPath())
+        .setScanners(
+            new TypeAnnotationsScanner(),
+            new TypesScanner(),
+            new FieldAnnotationsScanner());
+    Reflections reflections = new Reflections(builder);
+    Set<Field> fields = reflections.getFieldsAnnotatedWith(FlagInfo.class);
+    Set<Field> fieldsCopy = ImmutableSet.copyOf(fields);
+    for (Field field : fieldsCopy) {
+      FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
+      if (!flagEnvs.contains(flagDescription.environment())) {
+        fields.remove(field);
+      }
+    }
+    return fields;
   }
 
   /**

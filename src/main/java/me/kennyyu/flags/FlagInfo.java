@@ -30,4 +30,13 @@ public @interface FlagInfo {
    *     "-altFlagName=value".
    */
   String altName() default "";
+
+  /**
+   * Environment for a flag. Use {@link Flags#parse(String[], java.util.Set)} or
+   * {@link Flags#parseWithExceptions(String[], java.util.Set)} to load
+   * different environments. Use different environments e.g. "testing",
+   * "production", or "staging" to enable different flags in specific
+   * environments.
+   */
+  String environment() default "";
 }
