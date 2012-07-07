@@ -41,6 +41,14 @@ import com.google.common.collect.Sets;
  * All classes referenced from the main class with flags will be available
  * as options.
  *
+ * {@link FlagInfo} takes several parameters:
+ * String help (required) - help message for this flag
+ * String altName (optional) - short name for this flag. Only one dash
+ *    is needed when using the alternate name
+ * String environment (optional) - environment for this flag. Different flag
+ *    environments may be loaded for different use cases. The default
+ *    environment is the empty string.
+ *
  * Boolean flags have short hand where "--booleanFlag=true" is the same as
  * "--boleanFlag".
  *
@@ -152,11 +160,12 @@ public final class Flags {
    * @param args command line arguments in the form
    *     "--defaultFlagName=value --booleanFlag -c=foo ..."
    * @param flagEnvs Set of flag environments to load. All files in the current
-   *     classpath marked with a flag environment in flagEnv will be loaded.
+   *     classpath marked with a flag environment in flagEnv will be loaded. If
+   *     flagEnvs is empty, then the default ("") environment will be used.
    * @throws FlagException if any field is not a Flag object, or if a flag
    *    passed at the command line is not recognized
    */
-  public static void parse(String[] args, Set<String> flagEnvs) {
+  public static void parse(String[] args, String... flagEnvs) {
     try {
       parseWithExceptions(args, flagEnvs);
     } catch (FlagException e) {
@@ -165,24 +174,10 @@ public final class Flags {
   }
 
   /**
-   * Same as {@literal parse(args, ImmutableSet.of(flagEnv)))}.
-   */
-  public static void parse(String[] args, String flagEnv) {
-    parse(args, ImmutableSet.of(flagEnv));
-  }
-
-  /**
-   * Same as {@literal parse(args, "")}.
-   */
-  public static void parse(String[] args) {
-    parse(args, "");
-  }
-
-  /**
    * Same as {@link #parse(String[], Set)}, but forces the user to catch
    * exceptions.
    */
-  public static void parseWithExceptions(String[] args, Set<String> flagEnvs)
+  public static void parseWithExceptions(String[] args, String... flagEnvs)
       throws FlagException {
     Set<Field> fields = getAnnotatedFields(flagEnvs);
     ensureAnnotatedFieldsAreFlags(fields);
@@ -206,21 +201,6 @@ public final class Flags {
   }
 
   /**
-   * Same as {@literal parseWithExceptions(args, ImmutableSet.of(flagEnv))}.
-   */
-  public static void parseWithExceptions(String[] args, String flagEnv)
-      throws FlagException {
-    parseWithExceptions(args, ImmutableSet.of(flagEnv));
-  }
-
-  /**
-   * Same as {@literal parseWithExceptions(args, "")}.
-   */
-  public static void parseWithExceptions(String[] args) throws FlagException {
-    parseWithExceptions(args, "");
-  }
-
-  /**
    * Ensures that all fields are Flag objects
    * @param fields
    * @throws IllegalFlagAnnotationException if any field is not a Flag object
@@ -238,7 +218,7 @@ public final class Flags {
    * @param flagEnvs See {@link #parse(String[], Set)}
    * @return all {@link Field} objects annotated with {@link FlagInfo}.
    */
-  private static Set<Field> getAnnotatedFields(Set<String> flagEnvs) {
+  private static Set<Field> getAnnotatedFields(String... flagEnvs) {
     ConfigurationBuilder builder = new ConfigurationBuilder()
         .setUrls(ClasspathHelper.forJavaClassPath())
         .setScanners(
@@ -248,9 +228,13 @@ public final class Flags {
     Reflections reflections = new Reflections(builder);
     Set<Field> fields = reflections.getFieldsAnnotatedWith(FlagInfo.class);
     Set<Field> fieldsCopy = ImmutableSet.copyOf(fields);
+    Set<String> flagEnvSet = flagEnvs.length == 0 ?
+        ImmutableSet.of("") : ImmutableSet.copyOf(flagEnvs);
+
+    // only return fields with the provided environments
     for (Field field : fieldsCopy) {
       FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
-      if (!flagEnvs.contains(flagDescription.environment())) {
+      if (!flagEnvSet.contains(flagDescription.environment())) {
         fields.remove(field);
       }
     }

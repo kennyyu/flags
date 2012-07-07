@@ -1,5 +1,5 @@
-Flag library for Java
-=====================
+Flag Command Line Library for Java
+==================================
 -   Author: Kenny Yu
 -   Package: `me.kennyyu.flags`
 
@@ -21,7 +21,14 @@ the format:
     $ java MyApp --maxNumThreads=5 -shortName=foo --booleanFlag ...
 
 All classes referenced from the main class with flags will be available
-as options.
+as options. If `--help` or `-h` is passed in, then a help menu will be printed
+with all available flag options, and the JVM will exit with a 0 exit status.
+
+`me.kennyyu.flags.FlagInfo` takes several parameters:
+-   `String help` : (required) help message for this flag
+-   `String altName` : (optional) short name for this flag. Only one dash is needed when using the alternate name.
+-   `String environment` : (optional) environment of this flag. Different flag environments may be loaded for different use cases. The default environment is the empty
+string and will be loaded by default when no environment is provided to `Flags.parse`.
 
 Supported Flag Types
 ====================
@@ -55,9 +62,9 @@ To run it:
 
     $ java MyApp --status=TERMINATED
 
-Flags also support `Collection` types.
+Flags also support `java.util.Collection` types.
 
-To pass in a `List`:
+To pass in a `java.util.List`:
 
     @FlagInfo(help = "list example")
     private static Flag<List<Integer>> list =
@@ -67,7 +74,7 @@ To run it:
 
     $ java MyApp --list=3,4,5,6,6,7
 
-To pass in a `Set`:
+To pass in a `java.util.Set`:
 
     @FlagInfo(help = "set example")
     private static Flag<Set<String>> set =
@@ -77,7 +84,7 @@ To run it:
 
     $ java MyApp --set=foo,cheese,bar
 
-To pass in a `Map`:
+To pass in a `java.util.Map`:
 
     @FlagInfo(help = "map example")
     private static Flag<Map<String, Integer>> map =
