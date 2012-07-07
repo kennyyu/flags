@@ -321,4 +321,44 @@ public class FlagsTest {
     assertEquals(set, flagSetEnum.get());
   }
 
+  @Test
+  public void testAll() {
+    String[] args = {
+        "--flagInteger=-5",
+        "-long=6",
+        "-double=-4.5",
+        "--flagFloat=5.6",
+        "--flagBoolean",
+        "-char=d",
+        "-string=foo",
+        "-byte=BC",
+        "--flagShort=2",
+        "-list=4,5,6",
+        "--flagSet=cheese,bar",
+        "-map=\"h:5 i:10 j:6\"",
+        "--flagEnum=FRIDAY",
+        "--flagSetEnum=MONDAY,SUNDAY,THURSDAY"
+    };
+    Flags.parse(args, "testing");
+    assertEquals(-5, flagInteger.get());
+    assertEquals(6L, flagLong.get());
+    assertEquals(-4.5, flagDouble.get());
+    assertEquals((float) 5.6, flagFloat.get());
+    assertEquals(true, flagBoolean.get());
+    assertEquals('d', flagCharacter.get());
+    assertEquals("foo", flagString.get());
+    assertEquals((byte) 0xBC, flagByte.get());
+    assertEquals((short) 2, flagShort.get());
+    assertEquals(Lists.newArrayList(4, 5, 6), flagList.get());
+    assertEquals(Sets.newHashSet("cheese", "bar"), flagSet.get());
+    Map<String, Integer> map = Maps.newHashMap();
+    map.put("h", 5);
+    map.put("i", 10);
+    map.put("j", 6);
+    assertEquals(map, flagMap.get());
+    assertEquals(Day.FRIDAY, flagEnum.get());
+    assertEquals(
+        Sets.newHashSet(Day.MONDAY, Day.SUNDAY, Day.THURSDAY),
+        flagSetEnum.get());
+  }
 }
