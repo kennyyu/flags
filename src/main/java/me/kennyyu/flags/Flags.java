@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 
 /**
  * Wrapper class containing utility methods for working with {@link Flag}
@@ -136,14 +138,26 @@ public final class Flags {
    */
   private static class FlagImpl<T> implements Flag<T> {
     private final T value;
+    private final T defaultValue;
 
     public FlagImpl(T value) {
       this.value = value;
+      this.defaultValue = value;
+    }
+
+    public FlagImpl(T value, T defaultValue) {
+      this.value = value;
+      this.defaultValue = defaultValue;
     }
 
     @Override
     public T get() {
       return value;
+    }
+
+    @Override
+    public T defaultValue() {
+      return defaultValue;
     }
   }
 
@@ -183,7 +197,6 @@ public final class Flags {
     ensureAnnotatedFieldsAreFlags(fields);
 
     Set<Field> inacessibleFields = makeFieldsAccessible(fields);
-    Map<String, String> helpMap = makeHelpMap(fields);
     Map<String, String> altNameToFullNameMap = makeAltNameToFullNameMap(fields);
     Set<String> allFieldsNameSet = makeAllFieldsNameSet(fields);
     Map<String, String> providedFieldValuesMap = makeProvidedFieldValuesMap(
@@ -196,7 +209,8 @@ public final class Flags {
     }
 
     if (help.get()) {
-      printHelp(helpMap);
+      Table<String, String, String> helpTable = makeHelpTable(fields);
+      printHelp(helpTable);
     }
   }
 
@@ -258,23 +272,27 @@ public final class Flags {
   }
 
   /**
-   * @return {@link Map} mapping (flag name) -> (flag information).
+   * Create a {@link Table} of the form (class name, flag name, flag help).
    */
-  private static Map<String, String> makeHelpMap(Set<Field> fields) {
-    Map<String, String> helpMap = Maps.newTreeMap();
+  private static Table<String, String, String> makeHelpTable(
+      Set<Field> fields) {
+    Table<String, String, String> table = TreeBasedTable.create();
     for (Field field : fields) {
       FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
       String combinedFlagNames = flagDescription.altName().equals("")
           ? field.getName()
-          : field.getName() + ", -" + flagDescription.altName();
-      helpMap.put("--" + combinedFlagNames, flagDescription.help() + " [from "
-          + field.getDeclaringClass().getName() + "]");
+          : "--" + field.getName() + ", -" + flagDescription.altName() 
+                + " [environment=\"" + flagDescription.environment() + "\"]";
+      table.put(
+          field.getDeclaringClass().getName(),
+          combinedFlagNames,
+          flagDescription.help());
     }
-    return helpMap;
+    return table;
   }
 
   /**
-   * @return {@link Map} mapping (flag name or alternate name) -> (flag name).
+   * Returns {@link Map} mapping (flag name or alternate name) -> (flag name).
    */
   private static Map<String, String> makeAltNameToFullNameMap(
       Set<Field> fields) {
@@ -290,7 +308,7 @@ public final class Flags {
   }
 
   /**
-   * @return {@link Set} containing all the string versions of the flag names.
+   * Returns {@link Set} containing all the string versions of the flag names.
    * @throws DuplicateFlagNameException if multiple flags have the same name
    */
   private static Set<String> makeAllFieldsNameSet(Set<Field> fields)
@@ -416,15 +434,26 @@ public final class Flags {
         throw new UnsupportedFlagTypeException(parameter);
       }
     } else if (parameter instanceof Class) {
-      try {
-        field.set(null, Flags.valueOf(valueOfString(
-            flagValueString,
-            (Class<?>) parameter)));
-      } catch (Exception e) {
-        throw new FlagException(e);
-      }
+      setField(field, valueOfString(flagValueString, (Class<?>) parameter));
     } else {
       throw new UnsupportedFlagTypeException(parameter);
+    }
+  }
+
+  /**
+   * Updates the Flag's value in field to be the new value, and leaves the
+   * default value unchanged.
+   * @param field the field containing the flag
+   * @param value the new value of the flag
+   * @throws FlagException if the field cannot be accessed
+   */
+  @SuppressWarnings("unchecked")
+  private static <T> void setField(Field field, T value) throws FlagException {
+    try {
+      Flag<T> oldFlag = (Flag<T>) field.get(null);
+      field.set(null, new FlagImpl<T>(value, oldFlag.get()));
+    } catch (Exception e) {
+      throw new FlagException(e);
     }
   }
 
@@ -444,11 +473,7 @@ public final class Flags {
     for (String elementString : elementStrings) {
       elements.add(valueOfString(elementString, parameterType));
     }
-    try {
-      field.set(null, Flags.valueOf(elements));
-    } catch (Exception e) {
-      throw new FlagException(e);
-    }
+    setField(field, elements);
   }
 
   /**
@@ -467,11 +492,7 @@ public final class Flags {
     for (String elementString : elementStrings) {
       elements.add(valueOfString(elementString, parameterType));
     }
-    try {
-      field.set(null, Flags.valueOf(elements));
-    } catch (Exception e) {
-      throw new FlagException(e);
-    }
+    setField(field, elements);
   }
 
   /**
@@ -502,11 +523,7 @@ public final class Flags {
           valueOfString(components[0], keyType),
           valueOfString(components[1], valueType));
     }
-    try {
-      field.set(null, Flags.valueOf(elements));
-    } catch (Exception e) {
-      throw new FlagException(e);
-    }
+    setField(field, elements);
   }
 
   /**
@@ -551,13 +568,21 @@ public final class Flags {
   /**
    * Print out the help menu and quit.
    */
-  private static void printHelp(Map<String, String> helpMap) {
+  private static void printHelp(Table<String, String, String> helpTable) {
     StringBuilder builder = new StringBuilder();
-    for (Entry<String, String> entry : helpMap.entrySet()) {
-      builder.append(entry.getKey() + "\n    " + entry.getValue() + "\n");
+    for (String className : helpTable.rowKeySet()) {
+      builder.append(className).append(":\n");
+      for (Entry<String, String> entry : helpTable.row(className).entrySet()) {
+        builder.append("  ")
+            .append(entry.getKey())
+            .append("\n      ")
+            .append(entry.getValue())
+            .append("\n");
+      }
+      builder.append("\n");
     }
     System.out.println(builder.toString());
-    System.exit(0);
+    System.exit(0);;
   }
 
 }

@@ -12,8 +12,13 @@ package me.kennyyu.flags;
 public interface Flag<T> {
 
   /**
-   * @return the value of this flag
+   * Returns the value of this flag
    */
   T get();
+
+  /**
+   * Returns the default value of this flag
+   */
+  T defaultValue();
 
 }

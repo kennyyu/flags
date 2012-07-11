@@ -361,4 +361,11 @@ public class FlagsTest {
         Sets.newHashSet(Day.MONDAY, Day.SUNDAY, Day.THURSDAY),
         flagSetEnum.get());
   }
+
+  @Test
+  public void testDefault() {
+    String[] args = {"--flagInteger=7", "--help"};
+    Flags.parse(args, "testing", "");
+    assertEquals(0, flagInteger.defaultValue());
+  }
 }
