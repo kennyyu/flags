@@ -204,8 +204,8 @@ public final class Flags {
     setFieldValues(fields, providedFieldValuesMap);
 
     if (help.get()) {
-      Table<String, String, String> helpTable = makeHelpTable(fields);
-      printHelp(helpTable);
+      printHelp(makeHelpTable(fields));
+      System.exit(0);
     }
 
     // mark previously inaccessible fields as inaccessible again
@@ -573,7 +573,7 @@ public final class Flags {
   }
 
   /**
-   * Print out the help menu and quit.
+   * Print out the help menu.
    */
   private static void printHelp(Table<String, String, String> helpTable) {
     StringBuilder builder = new StringBuilder();
@@ -589,7 +589,6 @@ public final class Flags {
       builder.append("\n");
     }
     System.out.println(builder.toString());
-    System.exit(0);;
   }
 
 }

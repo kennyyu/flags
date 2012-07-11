@@ -364,7 +364,7 @@ public class FlagsTest {
 
   @Test
   public void testDefault() {
-    String[] args = {"--flagInteger=7", "--help"};
+    String[] args = {"--flagInteger=7"};
     Flags.parse(args, "testing");
     assertEquals(0, flagInteger.defaultValue());
   }
