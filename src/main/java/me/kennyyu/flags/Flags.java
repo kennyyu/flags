@@ -203,14 +203,14 @@ public final class Flags {
         args, allFieldsNameSet, altNameToFullNameMap);
     setFieldValues(fields, providedFieldValuesMap);
 
-    // mark previously inaccessible fields as inaccessible again
-    for (Field field : inacessibleFields) {
-      field.setAccessible(false);
-    }
-
     if (help.get()) {
       Table<String, String, String> helpTable = makeHelpTable(fields);
       printHelp(helpTable);
+    }
+
+    // mark previously inaccessible fields as inaccessible again
+    for (Field field : inacessibleFields) {
+      field.setAccessible(false);
     }
   }
 
@@ -547,16 +547,23 @@ public final class Flags {
 
   /**
    * Create a {@link Table} of the form (class name, flag name, flag help).
+   * @throws FlagException if the value of the flag cannot be accessed.
    */
   private static Table<String, String, String> makeHelpTable(
-      Set<Field> fields) {
+      Set<Field> fields) throws FlagException {
     Table<String, String, String> table = TreeBasedTable.create();
     for (Field field : fields) {
       FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
+      Flag<?> flag = null;
+      try {
+        flag = (Flag<?>) field.get(null);
+      } catch (Exception e) {
+        throw new FlagException(e);
+      }
       String combinedFlagNames = flagDescription.altName().equals("")
           ? "--" + field.getName()
           : "--" + field.getName() + ", -" + flagDescription.altName()
-                + " [environment=\"" + flagDescription.environment() + "\"]";
+                + " [default=" + flag.defaultValue() + ", environment=\"" + flagDescription.environment() + "\"]";
       table.put(
           field.getDeclaringClass().getName(),
           combinedFlagNames,
