@@ -272,26 +272,6 @@ public final class Flags {
   }
 
   /**
-   * Create a {@link Table} of the form (class name, flag name, flag help).
-   */
-  private static Table<String, String, String> makeHelpTable(
-      Set<Field> fields) {
-    Table<String, String, String> table = TreeBasedTable.create();
-    for (Field field : fields) {
-      FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
-      String combinedFlagNames = flagDescription.altName().equals("")
-          ? field.getName()
-          : "--" + field.getName() + ", -" + flagDescription.altName() 
-                + " [environment=\"" + flagDescription.environment() + "\"]";
-      table.put(
-          field.getDeclaringClass().getName(),
-          combinedFlagNames,
-          flagDescription.help());
-    }
-    return table;
-  }
-
-  /**
    * Returns {@link Map} mapping (flag name or alternate name) -> (flag name).
    */
   private static Map<String, String> makeAltNameToFullNameMap(
@@ -563,6 +543,26 @@ public final class Flags {
       return parsingClass.cast(value);
     }
     throw new UnsupportedFlagTypeException(parsingClass);
+  }
+
+  /**
+   * Create a {@link Table} of the form (class name, flag name, flag help).
+   */
+  private static Table<String, String, String> makeHelpTable(
+      Set<Field> fields) {
+    Table<String, String, String> table = TreeBasedTable.create();
+    for (Field field : fields) {
+      FlagInfo flagDescription = field.getAnnotation(FlagInfo.class);
+      String combinedFlagNames = flagDescription.altName().equals("")
+          ? "--" + field.getName()
+          : "--" + field.getName() + ", -" + flagDescription.altName()
+                + " [environment=\"" + flagDescription.environment() + "\"]";
+      table.put(
+          field.getDeclaringClass().getName(),
+          combinedFlagNames,
+          flagDescription.help());
+    }
+    return table;
   }
 
   /**
