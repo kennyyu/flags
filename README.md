@@ -58,6 +58,21 @@ with all available flag options, and the JVM will exit with a 0 exit status.
 -   `String environment` : (optional) environment of this flag. Different flag environments may be loaded for different use cases. The default environment is the empty
 string and will be loaded by default when no environment is provided to `Flags.parse`.
 
+For example, if we have a flag defined by:
+
+    @FlagInfo(help = "use mocking libraries", altName = "mock", environment = "test")
+    private static Flag<Boolean> useMockLibraries = Flags.valueOf(false);
+
+Then we can choose to load the test environment in `main` with:
+
+     public static void main(String[] args) {
+       Flags.parse(args, "test");
+     }
+
+If no environment is provided in `FlagInfo`, then the empty string will be used as the default environment.
+If no environment is provided to `Flags.parse` or `Flags.parseWithException`, then the default environment
+will be loaded.
+
 Supported Flag Types
 ====================
 Boolean flags have short hand where `--booleanFlag=true` is the same as
