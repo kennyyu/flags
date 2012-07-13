@@ -146,8 +146,7 @@ To run it:
 To pass in a `java.util.Set`:
 
     @FlagInfo(help = "set example")
-    private static Flag<Set<String>> set =
-        Flags.valueOf(new HashSet<String>());
+    private static Flag<Set<String>> set = Flags.valueOf(new HashSet<String>());
 
 To run it:
 
@@ -157,8 +156,7 @@ To run it:
 To pass in a `java.util.Map`:
 
     @FlagInfo(help = "map example")
-    private static Flag<Map<String, Integer>> map =
-        Flags.valueOf(new HashMap<String, Integer>());
+    private static Flag<Map<String, Integer>> map = Flags.valueOf(new HashMap<String, Integer>());
 
 To run it:
 
