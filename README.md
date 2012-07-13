@@ -135,8 +135,7 @@ Flags also support `java.util.Collection` types.
 To pass in a `java.util.List`:
 
     @FlagInfo(help = "list example")
-    private static Flag<List<Integer>> list =
-        Flags.valueOf(new ArrayList<Integer>());
+    private static Flag<List<Integer>> list = Flags.valueOf(new ArrayList<Integer>());
 
 To run it:
 
