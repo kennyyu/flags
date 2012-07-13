@@ -24,8 +24,19 @@ Example:
 This example declares a new flag indicating the maximum number of threads
 to use. On the right hand side, you may provide a default value for the flag.
 
+`me.kennyyu.flags.FlagInfo` takes several parameters:
+-   `String help` : (required) help message for this flag
+-   `String altName` : (optional) short name for this flag. Only one dash is needed when using the alternate name.
+-   `String environment` : (optional) environment of this flag. Different flag environments may be loaded for different use cases. The default environment is the empty
+string and will be loaded by default when no environment is provided to `Flags.parse`.
+
+
+Parsing Command Line Arguments
+==============================
 Once you have defined the flag, you must call either `Flags.parse(String, String...)` or
-`Flags.parseWithExceptions(String, String...)`. Here's a complete example:
+`Flags.parseWithExceptions(String, String...)`. The difference between these two is that
+`Flags.parse` may throw an unchecked `RuntimeException` whereas `Flags.parseWithExceptions`
+forces you to deal with the checked exception. Here's a complete example:
 
     import me.kennyyu.flags.Flag;
     import me.kennyyu.flags.Flags;
@@ -50,6 +61,8 @@ Once you have defined the flag, you must call either `Flags.parse(String, String
       }
     }
 
+Providing Command Line Arguments
+================================
 To pass in the value via command line, run the class with flags passed in
 the format:
 
@@ -59,11 +72,11 @@ All classes referenced from the main class with flags will be available
 as options. If `--help` or `-h` is passed in, then a help menu will be printed
 with all available flag options, and the JVM will exit with a 0 exit status.
 
-`me.kennyyu.flags.FlagInfo` takes several parameters:
--   `String help` : (required) help message for this flag
--   `String altName` : (optional) short name for this flag. Only one dash is needed when using the alternate name.
--   `String environment` : (optional) environment of this flag. Different flag environments may be loaded for different use cases. The default environment is the empty
-string and will be loaded by default when no environment is provided to `Flags.parse`.
+Loading Different Environments
+==============================
+Loading different environments is especially useful when we wish to separate testing
+flags from production flags: testing flags should never be allowed in a production
+environment.
 
 For example, if we have a flag defined by:
 
@@ -82,9 +95,8 @@ will be loaded.
 
 Supported Flag Types
 ====================
-Boolean flags have short hand where `--booleanFlag=true` is the same as
-`--boleanFlag`.
 
+## Primitive Wrapper Classes
 The currently supported types for flags include wrapper classes:
 -   Integer
 -   Long
@@ -96,7 +108,11 @@ The currently supported types for flags include wrapper classes:
 -   String
 -   Byte
 
-Flags also support `Enum` types. Example:
+Boolean flags have short hand where `--booleanFlag=true` is the same as
+`--boleanFlag`.
+
+## Enumerations
+Flags also support enumeration types. Example:
 
 
     private enum Status {
@@ -112,8 +128,10 @@ To run it:
 
     $ java MyApp --status=TERMINATED
 
+## Collections
 Flags also support `java.util.Collection` types.
 
+### List
 To pass in a `java.util.List`:
 
     @FlagInfo(help = "list example")
@@ -124,6 +142,7 @@ To run it:
 
     $ java MyApp --list=3,4,5,6,6,7
 
+### Set
 To pass in a `java.util.Set`:
 
     @FlagInfo(help = "set example")
@@ -134,6 +153,7 @@ To run it:
 
     $ java MyApp --set=foo,cheese,bar
 
+### Map
 To pass in a `java.util.Map`:
 
     @FlagInfo(help = "map example")
@@ -146,7 +166,3 @@ To run it:
 
 The (key,value) pairs must be passed inside double quotes in the form
 key:value separated by spaces.
-
-To parse the flags from the command line, use `Flags.parse`, or
-use `Flags.parseWithExceptions` to force catching checked
-exceptions.
