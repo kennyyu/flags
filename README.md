@@ -3,6 +3,14 @@ Flag Command Line Library for Java
 -   Author: Kenny Yu
 -   Package: `me.kennyyu.flags`
 
+Description
+===========
+This library is a simple lightweight framework for easily creating and using command
+line flags. All it takes is a simple annotation with `@FlagInfo` and an invocation to
+`Flags.parse` to create and use a flag! This library supports parsing primitive wrapper
+class types, `java.util.Collection` types such as `List`, `Set`, and `Map`,
+and enumerations.
+
 How to Create a Flag
 ====================
 To create a new flag, create a new static `me.kennyyu.flags.Flag` field.
@@ -25,7 +33,6 @@ Once you have defined the flag, you must call either `Flags.parse(String, String
     import java.util.List;
 
     public class MyApp {
-
       @FlagInfo(help = "maximum number of threads to use", altName = "n")
       private static Flag<Integer> maxNumThreads = Flags.valueOf(3);
 
@@ -65,9 +72,9 @@ For example, if we have a flag defined by:
 
 Then we can choose to load the test environment in `main` with:
 
-     public static void main(String[] args) {
-       Flags.parse(args, "test");
-     }
+    public static void main(String[] args) {
+      Flags.parse(args, "test");
+    }
 
 If no environment is provided in `FlagInfo`, then the empty string will be used as the default environment.
 If no environment is provided to `Flags.parse` or `Flags.parseWithException`, then the default environment
