@@ -15,10 +15,38 @@ Example:
 
 This example declares a new flag indicating the maximum number of threads
 to use. On the right hand side, you may provide a default value for the flag.
+
+Once you have defined the flag, you must call either `Flags.parse(String, String...)` or
+`Flags.parseWithExceptions(String, String...)`. Here's a complete example:
+
+    import me.kennyyu.flags.Flag;
+    import me.kennyyu.flags.Flags;
+
+    import java.util.List;
+
+    public class MyApp {
+
+      @FlagInfo(help = "maximum number of threads to use", altName = "n")
+      private static Flag<Integer> maxNumThreads = Flags.valueOf(3);
+
+      @FlagInfo(help = "use real logger", altName = "r")
+      private static Flag<Boolean> useRealLogger = Flags.valueOf(false);
+
+      @FlagInfo(help = "input list", altName = "l")
+      private static Flag<List<String>> inputList = Flags.valueOf(new ArrayList<String>());
+
+      public static void main(String[] args) {
+        Flags.parse(args);
+        System.out.println(maxNumThreads.get());
+        System.out.println(useRealLogger.get());
+        System.out.println(inputList.get());
+      }
+    }
+
 To pass in the value via command line, run the class with flags passed in
 the format:
 
-    $ java MyApp --maxNumThreads=5 -shortName=foo --booleanFlag ...
+    $ java MyApp --maxNumThreads=5 --useRealLogger -l=foo,bar,baz
 
 All classes referenced from the main class with flags will be available
 as options. If `--help` or `-h` is passed in, then a help menu will be printed

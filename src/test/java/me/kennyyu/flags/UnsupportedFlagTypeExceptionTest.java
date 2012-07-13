@@ -21,12 +21,10 @@ public class UnsupportedFlagTypeExceptionTest {
     try {
       Flags.parseWithExceptions(args, "parameter");
       fail("did not throw exception");
+    } catch (UnsupportedFlagTypeException e) {
+      assertTrue(true);
     } catch (FlagException e) {
-      if (e.getCause() instanceof UnsupportedFlagTypeException) {
-        assertTrue(true);
-      } else {
-        fail("threw unexpected exception: " + e);
-      }
+      fail("threw unexpected exception: " + e);
     }
   }
 
