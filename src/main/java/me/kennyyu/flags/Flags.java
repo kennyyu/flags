@@ -563,7 +563,8 @@ public final class Flags {
       String combinedFlagNames = flagDescription.altName().equals("")
           ? "--" + field.getName()
           : "--" + field.getName() + ", -" + flagDescription.altName()
-                + " [default=" + flag.defaultValue() + ", environment=\"" + flagDescription.environment() + "\"]";
+              + " [default=" + flag.defaultValue() + ", environment=\""
+              + flagDescription.environment() + "\"]";
       table.put(
           field.getDeclaringClass().getName(),
           combinedFlagNames,
