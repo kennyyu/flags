@@ -7,9 +7,64 @@ Description
 ===========
 This library is a simple lightweight framework for easily creating and using command
 line flags. All it takes is a simple annotation with `@FlagInfo` and an invocation to
-`Flags.parse` to create and use a flag! This library supports parsing primitive wrapper
-class types, `java.util.Collection` types such as `List`, `Set`, and `Map`,
-and enumerations.
+`Flags.parse` to create and use a flag! The library uses the Reflections library
+to scan `Flag` objects at runtime.
+
+This library supports parsing primitive wrapper class types, `java.util.Collection`
+types such as `List`, `Set`, and `Map`, and enumerations.
+
+Dependencies
+============
+-   Guava 12.0
+-   Reflections 0.9.8
+-   JUnit 4.0
+
+How to Install
+==============
+
+First, clone this repository:
+
+    $ git clone git://github.com/kennyyu/flags.git
+
+To install the library, you must have maven installed.
+
+### For Maven Users
+
+Next, `cd` into the directory and build the maven package:
+
+    $ cd flags
+    flags$ mvn package
+
+This should compile the package and execute all the tests. Finally, install the package:
+
+    flags$ mvn install
+
+To use this flag library, include this in the `<dependencies>` section of your `pom.xml`:
+
+    <dependencies>
+      ...
+      <dependency>
+        <groupId>me.kennyyu</groupId>
+        <artifactId>flags</artifactId>
+        <version>1.0</version>
+      </dependency>
+      ...
+    </dependencies>
+
+## Manual Library Install
+
+If you would rather include the jar manually, first build the maven package with all of
+the necessary dependencies:
+
+    $ cd flags
+    flags$ mvn assembly:single
+
+This should create a `flags-1.0-jar-with-dependencies.jar` inside the `target` directory:
+
+    flags$ ls target
+    flags-1.0-jar-with-dependencies.jar ...
+
+Include the jar in your classpath when compiling your application.
 
 How to Create a Flag
 ====================
