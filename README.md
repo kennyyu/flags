@@ -28,7 +28,7 @@ First, clone this repository:
 
 To install the library, you must have maven installed.
 
-### For Maven Users
+## For Maven Users
 
 Next, `cd` into the directory and build the maven package:
 
