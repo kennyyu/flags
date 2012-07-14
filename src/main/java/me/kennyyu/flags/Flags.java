@@ -15,6 +15,7 @@ import org.reflections.scanners.TypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,80 +25,90 @@ import com.google.common.collect.TreeBasedTable;
 
 /**
  * Wrapper class containing utility methods for working with {@link Flag}
- * objects.
+ * objects. Flag objects must be annotated with {@link FlagInfo} in order to
+ * be recognized as a flag.<br><br>
  *
  * To create a new flag, create a new static {@link Flag} field. The parameter
  * type of the field will be the type of the flag. Then annotate the field
  * with {@link FlagInfo} and provide the necessary fields. Example:
- *
- *    @FlagInfo(help = "maximum number of threads to use", altName = "n")
+ * <pre>
+ * <code>
+ *    {@literal @}FlagInfo(help = "max number of threads to use", altName = "n")
  *    private static Flag<Integer> maxNumThreads = Flag<Integer>.valueOf(4);
+ * </code>
+ * </pre>
  *
  * This example declares a new flag indicating the maximum number of threads
  * to use. On the right hand side, you may provide a default value for the flag.
  * To pass in the value via command line, run the class with flags passed in
  * the format:
- *
+ * <pre>
+ * <code>
  *    java MyApp --maxNumThreads=5 -shortName=foo --booleanFlag ...
- *
- * All classes referenced from the main class with flags will be available
- * as options.
- *
- * {@link FlagInfo} takes several parameters:
- * String help (required) - help message for this flag
- * String altName (optional) - short name for this flag. Only one dash
- *    is needed when using the alternate name
- * String environment (optional) - environment for this flag. Different flag
- *    environments may be loaded for different use cases. The default
- *    environment is the empty string.
- *
- * Boolean flags have short hand where "--booleanFlag=true" is the same as
- * "--boleanFlag".
+ * </code>
+ * </pre>
  *
  * The currently supported types for flags include wrapper classes:
  * {@link Integer}, {@link Long}, {@link Short}, {@link Boolean},
  * {@link Double}, {@link Float}, {@link Character}, {@link String},
- * {@link Byte}.
+ * {@link Byte}. Boolean flags have short hand where "--booleanFlag=true" is
+ * the same as "--boleanFlag".<br><br>
  *
  * Flags also support {@link Enum} types. Example:
+ * <pre>
+ * <code>
  *    private enum Status {
  *      RUNNING,
  *      SUSPENDED,
  *      TERMINATED
  *    }
  *
- *    @FlagInfo(help = "enum example")
+ *    {@literal @}FlagInfo(help = "enum example")
  *    private static Flag<Status> status = Flags.valueOf(Status.RUNNING);
  *
  *    java MyApp --status=TERMINATED
+ * </code>
+ * </pre>
  *
- * Flags also support {@link Collection} types.
- *
+ * Flags also support {@link java.util.Collection} types.
  * To pass in a {@link List}:
- *    @FlagInfo(help = "list example")
+ * <pre>
+ * <code>
+ *    {@literal @}FlagInfo(help = "list example")
  *    private static Flag<List<Integer>> list =
  *        Flags.valueOf(new ArrayList<Integer>());
  *
  *    java MyApp --list=3,4,5,6,6,7
+ * </code>
+ * </pre>
  *
- * To pass in a {@link Set}:
- *    @FlagInfo(help = "set example")
+ * To pass in a {@link java.util.Set}:
+ * <pre>
+ * <code>
+ *    {@literal @}FlagInfo(help = "set example")
  *    private static Flag<Set<String>> set =
  *        Flags.valueOf(new HashSet<String>());
  *
  *    java MyApp --set=foo,cheese,bar
+ * </code>
+ * </pre>
  *
- * To pass in a {@link Map}:
- *    @FlagInfo(help = "map example")
+ * To pass in a {@link java.util.Map}:
+ * <pre>
+ * <code>
+ *    {@literal @}FlagInfo(help = "map example")
  *    private static Flag<Map<String, Integer>> map =
  *        Flags.valueOf(new HashMap<String, Integer>());
  *
  *    java MyApp --map="foo:3 bar:4 cheese:5 bam:6"
+ * </code>
+ * </pre>
  * The (key,value) pairs must be passed inside double quotes in the form
- * key:value separated by spaces.
+ * key:value separated by spaces.<br><br>
  *
- * To parse the flags from the command line, use {@link #parse(String[])}, or
- * use {@link #parseWithExceptions(String[])} to force catching checked
+ * To parse the flags from the command line, use
+ * {@link #parse(String[], String[])}, or use
+ * {@link #parseWithExceptions(String[], String[])} to force catching checked
  * exceptions.
  *
  * @author kennyyu (Kenny Yu)
@@ -176,19 +187,17 @@ public final class Flags {
    * @param flagEnvs Set of flag environments to load. All files in the current
    *     classpath marked with a flag environment in flagEnv will be loaded. If
    *     flagEnvs is empty, then the default ("") environment will be used.
-   * @throws FlagException if any field is not a Flag object, or if a flag
-   *    passed at the command line is not recognized
    */
   public static void parse(String[] args, String... flagEnvs) {
     try {
       parseWithExceptions(args, flagEnvs);
     } catch (FlagException e) {
-      throw new RuntimeException(e);
+      throw Throwables.propagate(e);
     }
   }
 
   /**
-   * Same as {@link #parse(String[], Set)}, but forces the user to catch
+   * Same as {@link #parse(String[], String[])}, but forces the user to catch
    * exceptions.
    */
   public static void parseWithExceptions(String[] args, String... flagEnvs)

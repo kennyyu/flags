@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for marking {@link Flag} objects as active flags. When
- * {@link Flags#parse(String[])} is called, all {@link Flag} fields with this
- * annotation will be scanned, and the flags will be updated to reflect the
- * values provided at the command line.
+ * {@link Flags#parse(String[], String[])} is called, all {@link Flag} fields
+ * with this annotation will be scanned, and the flags will be updated to
+ * reflect the values provided at the command line.
  *
  * @author kennyyu (Kenny Yu)
  */
@@ -32,8 +32,8 @@ public @interface FlagInfo {
   String altName() default "";
 
   /**
-   * Environment for a flag. Use {@link Flags#parse(String[], java.util.Set)} or
-   * {@link Flags#parseWithExceptions(String[], java.util.Set)} to load
+   * Environment for a flag. Use {@link Flags#parse(String[], String[])} or
+   * {@link Flags#parseWithExceptions(String[], String[])} to load
    * different environments. Use different environments e.g. "testing",
    * "production", or "staging" to enable different flags in specific
    * environments.
