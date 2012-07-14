@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Tests for {@link IllegalFlagFormatExceptionException}
+ * Tests for {@link IllegalFlagFormatException}
  *
  * @author kennyyu (Kenny Yu)
  */
