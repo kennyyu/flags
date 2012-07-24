@@ -22,25 +22,20 @@ Dependencies
 How to Install
 ==============
 
-First, clone this repository:
-
-    $ git clone git://github.com/kennyyu/flags.git
-
 To install the library, you must have maven installed.
 
 ## For Maven Users
 
-Next, `cd` into the directory and build the maven package:
+To use this flag library, include this in your `pom.xml`:
 
-    $ cd flags
-    flags$ mvn package
-
-This should compile the package and execute all the tests. Finally, install the package:
-
-    flags$ mvn install
-
-To use this flag library, include this in the `<dependencies>` section of your `pom.xml`:
-
+    <repositories>
+      ...
+      <repository>
+        <id>flags-kennyyu-github</id>
+        <url>https://raw.github.com/kennyyu/maven-repos/master/flags</url>
+      </repository>
+      ...
+    </repositories>
     <dependencies>
       ...
       <dependency>
@@ -53,8 +48,11 @@ To use this flag library, include this in the `<dependencies>` section of your `
 
 ## Manual Library Install
 
-If you would rather include the jar manually, first build the maven package with all of
-the necessary dependencies:
+If you would rather include the jar manually, first clone the this repository:
+
+    $ git clone git://github.com/kennyyu/flags.git
+
+Next, build the maven package with all of the necessary dependencies:
 
     $ cd flags
     flags$ mvn assembly:single
