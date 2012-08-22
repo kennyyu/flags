@@ -72,7 +72,7 @@ the field with `me.kennyyu.flags.FlagInfo` and provide the necessary fields.
 Example:
 
     @FlagInfo(help = "maximum number of threads to use", altName = "n")
-    private static Flag<Integer> maxNumThreads = Flag<Integer>.valueOf(4);
+    private static Flag<Integer> maxNumThreads = Flags.valueOf(4);
 
 This example declares a new flag indicating the maximum number of threads
 to use. On the right hand side, you may provide a default value for the flag.
