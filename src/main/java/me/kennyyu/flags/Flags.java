@@ -35,7 +35,8 @@ import com.google.common.collect.TreeBasedTable;
  * <pre>
  * <code>
  *    {@literal @}FlagInfo(help = "max number of threads to use", altName = "n")
- *    private static Flag<Integer> maxNumThreads = Flag<Integer>.valueOf(4);
+ *    private static final Flag<Integer> maxNumThreads =
+ *        Flag<Integer>.valueOf(4);
  * </code>
  * </pre>
  *
@@ -65,7 +66,7 @@ import com.google.common.collect.TreeBasedTable;
  *    }
  *
  *    {@literal @}FlagInfo(help = "enum example")
- *    private static Flag<Status> status = Flags.valueOf(Status.RUNNING);
+ *    private static final Flag<Status> status = Flags.valueOf(Status.RUNNING);
  *
  *    java MyApp --status=TERMINATED
  * </code>
@@ -76,7 +77,7 @@ import com.google.common.collect.TreeBasedTable;
  * <pre>
  * <code>
  *    {@literal @}FlagInfo(help = "list example")
- *    private static Flag<List<Integer>> list =
+ *    private static final Flag<List<Integer>> list =
  *        Flags.valueOf(new ArrayList<Integer>());
  *
  *    java MyApp --list=3,4,5,6,6,7
@@ -87,7 +88,7 @@ import com.google.common.collect.TreeBasedTable;
  * <pre>
  * <code>
  *    {@literal @}FlagInfo(help = "set example")
- *    private static Flag<Set<String>> set =
+ *    private static final Flag<Set<String>> set =
  *        Flags.valueOf(new HashSet<String>());
  *
  *    java MyApp --set=foo,cheese,bar
@@ -98,7 +99,7 @@ import com.google.common.collect.TreeBasedTable;
  * <pre>
  * <code>
  *    {@literal @}FlagInfo(help = "map example")
- *    private static Flag<Map<String, Integer>> map =
+ *    private static final Flag<Map<String, Integer>> map =
  *        Flags.valueOf(new HashMap<String, Integer>());
  *
  *    java MyApp --map="foo:3 bar:4 cheese:5 bam:6"

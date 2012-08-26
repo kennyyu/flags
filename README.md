@@ -72,7 +72,7 @@ the field with `me.kennyyu.flags.FlagInfo` and provide the necessary fields.
 Example:
 
     @FlagInfo(help = "maximum number of threads to use", altName = "n")
-    private static Flag<Integer> maxNumThreads = Flags.valueOf(4);
+    private static final Flag<Integer> maxNumThreads = Flags.valueOf(4);
 
 This example declares a new flag indicating the maximum number of threads
 to use. On the right hand side, you may provide a default value for the flag.
@@ -98,13 +98,13 @@ forces you to deal with the checked exception. Here's a complete example:
 
     public class MyApp {
       @FlagInfo(help = "maximum number of threads to use", altName = "n")
-      private static Flag<Integer> maxNumThreads = Flags.valueOf(3);
+      private static final Flag<Integer> maxNumThreads = Flags.valueOf(3);
 
       @FlagInfo(help = "use real logger", altName = "r")
-      private static Flag<Boolean> useRealLogger = Flags.valueOf(false);
+      private static final Flag<Boolean> useRealLogger = Flags.valueOf(false);
 
       @FlagInfo(help = "input list", altName = "l")
-      private static Flag<List<String>> inputList = Flags.valueOf(new ArrayList<String>());
+      private static final Flag<List<String>> inputList = Flags.valueOf(new ArrayList<String>());
 
       public static void main(String[] args) {
         Flags.parse(args);
@@ -175,7 +175,7 @@ Flags also support enumeration types. Example:
     }
 
     @FlagInfo(help = "enum example")
-    private static Flag<Status> status = Flags.valueOf(Status.RUNNING);
+    private static final Flag<Status> status = Flags.valueOf(Status.RUNNING);
 
 To run it:
 
@@ -188,7 +188,7 @@ Flags also support `java.util.Collection` types.
 To pass in a `java.util.List`:
 
     @FlagInfo(help = "list example")
-    private static Flag<List<Integer>> list = Flags.valueOf(new ArrayList<Integer>());
+    private static final Flag<List<Integer>> list = Flags.valueOf(new ArrayList<Integer>());
 
 To run it:
 
@@ -198,7 +198,7 @@ To run it:
 To pass in a `java.util.Set`:
 
     @FlagInfo(help = "set example")
-    private static Flag<Set<String>> set = Flags.valueOf(new HashSet<String>());
+    private static final Flag<Set<String>> set = Flags.valueOf(new HashSet<String>());
 
 To run it:
 
@@ -208,7 +208,7 @@ To run it:
 To pass in a `java.util.Map`:
 
     @FlagInfo(help = "map example")
-    private static Flag<Map<String, Integer>> map = Flags.valueOf(new HashMap<String, Integer>());
+    private static final Flag<Map<String, Integer>> map = Flags.valueOf(new HashMap<String, Integer>());
 
 To run it:
 
