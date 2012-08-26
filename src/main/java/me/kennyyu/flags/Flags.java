@@ -1,6 +1,7 @@
 package me.kennyyu.flags;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -384,8 +385,37 @@ public final class Flags {
     for (Field field : fields) {
       String flagValueString = providedFieldValuesMap.get(field.getName());
       if (flagValueString != null) { // check if the flag was provided
+        setFinalStaticField(field, flagValueString);
+      }
+    }
+  }
+
+  /**
+   * Updates field, possibly with {@literal static} and {@literal final}
+   * modifiers, to be the corresponding value of flagValueString.
+   *
+   * Hack taken from: http://www.javaspecialists.eu/archive/Issue161.html
+   *
+   * @throws FlagException if the field cannot be accessed
+   */
+  private static void setFinalStaticField(Field field, String flagValueString)
+      throws FlagException {
+    try {
+      Field modifiersField = Field.class.getDeclaredField("modifiers");
+      int oldModifiers = field.getModifiers();
+      if (Modifier.isFinal(oldModifiers)) {
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, oldModifiers & ~Modifier.FINAL);
+        setField(field, flagValueString);
+        modifiersField.setInt(field, oldModifiers);
+        modifiersField.setAccessible(false);
+      } else {
         setField(field, flagValueString);
       }
+    } catch (NoSuchFieldException e) {
+      throw new FlagException(e);
+    } catch (IllegalAccessException e) {
+      throw new FlagException(e);
     }
   }
 

@@ -66,6 +66,10 @@ public class FlagsTest {
   private static Flag<Set<Day>> flagSetEnum =
       Flags.valueOf(Sets.<Day>newHashSet());
 
+  @FlagInfo(help = "flagStaticFinal", altName = "staticFinal",
+      environment = "testing")
+  private static final Flag<Integer> flagStaticFinal = Flags.valueOf(0);
+
   private static enum Day {
     SUNDAY,
     MONDAY,
@@ -367,5 +371,12 @@ public class FlagsTest {
     String[] args = {"--flagInteger=7"};
     Flags.parse(args, "testing");
     assertEquals(0, flagInteger.defaultValue());
+  }
+
+  @Test
+  public void testStaticFinal() {
+    String[] args = {"--flagStaticFinal=8"};
+    Flags.parse(args, "testing");
+    assertEquals(8, flagStaticFinal.get());
   }
 }
